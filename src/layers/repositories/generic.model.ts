@@ -1,4 +1,4 @@
-import { Database } from "../../config/Database";
+import { Database } from "../../dependences/Database";
 
 const connection = Database.getInstance()
 

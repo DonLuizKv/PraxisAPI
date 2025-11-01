@@ -1,4 +1,4 @@
-import { Database } from "../../config/Database";
+import { Database } from "../../dependences/Database";
 import { Binnacle, Document } from "../../utilities/Types";
 
 const connection = Database.getInstance();

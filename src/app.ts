@@ -4,7 +4,7 @@ import morgan from "morgan";
 import dotenv from "dotenv"
 import http from "http";
 import { Server } from "socket.io";
-import { SocketManager } from "./config/SocketManager";
+import { SocketManager } from "./dependences/SocketManager";
 // Routes
 import adminRoutes from "./layers/routes/admin.routes";
 import scenaryRoutes from "./layers/routes/scenary.routes";
@@ -12,7 +12,7 @@ import studentRoutes from "./layers/routes/student.routes";
 import filesRoutes from "./layers/routes/files.routes";
 import authRoutes from "./layers/routes/auth.routes";
 import path from "path";
-import { Database } from "./config/Database";
+import { Database } from "./dependences/Database";
 
 dotenv.config();
 
