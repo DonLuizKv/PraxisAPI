@@ -1,4 +1,4 @@
-import { Database } from "../../utilities/Database";
+import { Database } from "../../config/Database";
 
 export abstract class Repository<T extends object> {
 
