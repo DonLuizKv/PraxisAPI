@@ -1,5 +1,5 @@
 # modulos de npm, esa vaina gasta espacio
-node_modules
+node_modules/
 
 # Ignorar archivos de entorno
 .env

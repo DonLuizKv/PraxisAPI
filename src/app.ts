@@ -5,7 +5,6 @@ import dotenv from "dotenv"
 import http from "http";
 import { Server } from "socket.io";
 import { SocketManager } from "./dependences/SocketManager";
-// Routes
 import adminRoutes from "./layers/routes/admin.routes";
 import scenaryRoutes from "./layers/routes/scenary.routes";
 import studentRoutes from "./layers/routes/student.routes";
@@ -23,19 +22,13 @@ const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS?.split(',') || [];
 // Server
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server, {
-    cors: {
-        origin: ALLOWED_ORIGINS
-    }
-});
 
-// Socket
-const socketManager = SocketManager.getInstance(io);
-try {
-    socketManager.start();
-} catch (error) {
-    console.log(error);
-}
+// Dependences
+const socketManager = SocketManager.getInstance(server);
+const DBConnection = Database.getInstance();
+
+DBConnection.initialize()
+socketManager.initialize();
 
 // // Rate Limit
 // const limiter = rateLimit({
@@ -59,9 +52,6 @@ const corsOptions = {
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true
 };
-
-const setDatabase = Database.getInstance();
-setDatabase.initialize()
 
 // Middlewares
 app.use(cors(corsOptions));
