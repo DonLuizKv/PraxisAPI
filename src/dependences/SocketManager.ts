@@ -1,19 +1,10 @@
 import jwt, { JwtPayload } from "jsonwebtoken";
 import dotenv from "dotenv";
-import cron from "node-cron";
 import { Server as HTTPServer } from 'http';
 import { Server, Socket } from "socket.io";
+import { ActiveUsers } from "../types/SocketManagerTypes";
 
 dotenv.config();
-
-interface Interval {
-    seconds: string;
-    minutes: string;
-    hours: string;
-    days: string;
-    months: string;
-    daysOfWeek: string;
-}
 
 export class SocketManager {
     private static instance: SocketManager;
@@ -39,6 +30,7 @@ export class SocketManager {
         });
     }
 
+    //* ===== PUBLIC METHODS ===== *//
     public static getInstance(io: HTTPServer) {
         if (!SocketManager.instance) {
             SocketManager.instance = new SocketManager(io);
@@ -46,6 +38,29 @@ export class SocketManager {
         return SocketManager.instance;
     }
 
+    //* ===== PROTECTED METHODS ===== //
+    protected getActiveUsers(): ActiveUsers[] {
+        return Array.from(this.Users.entries()).map(([userUID, socketUID]) => ({ userUID, socketUID }))
+    }
+
+    //* ===== PRIVATE METHODS ===== *//
+    private logConnectionStatus() {
+        console.log("\x1b[33m%s\x1b[0m", "Total de usuarios conectados:", this.Users.size);
+        console.log("\x1b[33m%s\x1b[0m", "Total de administradores conectados:", this.Admins.size);
+        console.log("\x1b[33m%s\x1b[0m", "Total de estudiantes conectados:", this.Students.size);
+
+        const PlayersRegistered = [...this.Admins.values(), ...this.Students.values()].map((player) => {
+            const { socket, ...rest } = player;
+            return {
+                socketId: socket.id,
+                ...rest
+            };
+        });
+
+        console.log("\x1b[33m%s\x1b[0m", "Usuarios conectados:", PlayersRegistered);
+    }
+
+    //* ===== START METHOD ===== *//
     initialize() {
         try {
             console.log("\x1b[33m%s\x1b[0m", "SocketManager iniciado");
@@ -54,6 +69,9 @@ export class SocketManager {
                 if (!this.Users.has(socket.id)) {
                     this.Users.set(socket.id, socket);
                 }
+
+                console.log(this.Users.entries());
+
 
                 socket.on("client_connected", (data) => {
                     const { token } = data;
@@ -109,28 +127,5 @@ export class SocketManager {
         } catch (error: any) {
             console.error("Error en SocketManager:", error.message);
         }
-    }
-
-    logConnectionStatus() {
-        console.log("\x1b[33m%s\x1b[0m", "Total de usuarios conectados:", this.Users.size);
-        console.log("\x1b[33m%s\x1b[0m", "Total de administradores conectados:", this.Admins.size);
-        console.log("\x1b[33m%s\x1b[0m", "Total de estudiantes conectados:", this.Students.size);
-
-        const PlayersRegistered = [...this.Admins.values(), ...this.Students.values()].map((player) => {
-            const { socket, ...rest } = player;
-            return {
-                socketId: socket.id,
-                ...rest
-            };
-        });
-
-        console.log("\x1b[33m%s\x1b[0m", "Usuarios conectados:", PlayersRegistered);
-    }
-
-    sendNotification(socket: Socket, data: any, interval: Interval) {
-        const finalInterval = `${interval.seconds} ${interval.minutes} ${interval.hours} ${interval.days} ${interval.months} ${interval.daysOfWeek}`;
-        cron.schedule(finalInterval, () => {
-            socket.emit("binnacle_notification", data);
-        });
     }
 }
