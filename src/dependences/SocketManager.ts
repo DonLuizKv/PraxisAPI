@@ -20,13 +20,13 @@ export class SocketManager {
             // solo WebSockets, nada de long polling
             // transports: ["websocket"],
 
+            // tamaño máximo de mensaje (sube si mandas blobs/pdfs/etc.)
+            // maxHttpBufferSize: 1e6, // 1 MB por defectoF
+
             cors: {
                 origin: process.env.ORIGINS,
                 methods: ["GET", "POST"],
             },
-
-            // tamaño máximo de mensaje (sube si mandas blobs/pdfs/etc.)
-            // maxHttpBufferSize: 1e6, // 1 MB por defectoF
         });
     }
 
