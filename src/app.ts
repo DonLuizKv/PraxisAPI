@@ -26,7 +26,7 @@ const server = http.createServer(app);
 const socketManager = SocketManager.getInstance(server);
 const DBConnection = Database.getInstance();
 
-DBConnection.initialize()
+DBConnection.initialize();
 socketManager.initialize();
 
 // // Rate Limit

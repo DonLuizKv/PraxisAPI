@@ -1,6 +1,5 @@
 import dotenv from "dotenv";
 import { Pool, QueryResult } from "pg";
-import validateEnvironmentVariables from "../utilities/utils";
 
 dotenv.config();
 
@@ -9,8 +8,6 @@ export class Database {
     private pool: Pool;
 
     private constructor() {
-        validateEnvironmentVariables(["DB_HOST", "DB_USER", "DB_PASS", "DB_NAME", "DB_PORT"]);
-
         this.pool = new Pool({
             host: process.env.DB_HOST,
             user: process.env.DB_USER,
