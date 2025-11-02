@@ -27,8 +27,8 @@ export const normalizeStudent = async (student: Student) => {
         profile_photo: student.profile_photo || "/",
         scenary: scenary?.student_id === student.id,
         documents: {
-            arl: listDocuments.find((doc:Document) => doc.document_type === "arl") || null,
-            coverLetter: listDocuments.find((doc:Document) => doc.document_type === "coverLetter") || null,
+            arl: listDocuments.find((doc: Document) => doc.document_type === "arl") || null,
+            coverLetter: listDocuments.find((doc: Document) => doc.document_type === "coverLetter") || null,
         },
         binnacles: listBinnacles || [],
     };
@@ -56,3 +56,11 @@ export const hashPassword = async (plainPassword: string): Promise<string> => {
 export const comparePassword = async (plainPassword: string, hashedPassword: string): Promise<boolean> => {
     return bcrypt.compare(plainPassword, hashedPassword);
 };
+
+export default function validateEnvironmentVariables(variables: string[]): void {
+    const missing = variables.filter((env) => !process.env[env]);
+
+    if (missing.length > 0) {
+        console.error(`Missing required environment variables: ${missing.join(", ")}`);
+    }
+}

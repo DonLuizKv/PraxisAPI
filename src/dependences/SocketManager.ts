@@ -30,7 +30,7 @@ export class SocketManager {
         });
     }
 
-    //* ===== PUBLIC METHODS ===== *//
+    //? ===== PUBLIC METHODS ===== *//
     public static getInstance(io: HTTPServer) {
         if (!SocketManager.instance) {
             SocketManager.instance = new SocketManager(io);
@@ -38,12 +38,12 @@ export class SocketManager {
         return SocketManager.instance;
     }
 
-    //* ===== PROTECTED METHODS ===== //
+    //? ===== PROTECTED METHODS ===== *//
     protected getActiveUsers(): ActiveUsers[] {
         return Array.from(this.Users.entries()).map(([userUID, socketUID]) => ({ userUID, socketUID }))
     }
 
-    //* ===== PRIVATE METHODS ===== *//
+    //? ===== PRIVATE METHODS ===== *//
     private logConnectionStatus() {
         console.log("\x1b[33m%s\x1b[0m", "Total de usuarios conectados:", this.Users.size);
         console.log("\x1b[33m%s\x1b[0m", "Total de administradores conectados:", this.Admins.size);
@@ -60,7 +60,7 @@ export class SocketManager {
         console.log("\x1b[33m%s\x1b[0m", "Usuarios conectados:", PlayersRegistered);
     }
 
-    //* ===== START METHOD ===== *//
+    //? ===== START METHOD ===== *//
     initialize() {
         try {
             console.log("\x1b[33m%s\x1b[0m", "SocketManager iniciado");

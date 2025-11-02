@@ -1,5 +1,6 @@
 import dotenv from "dotenv";
 import { Pool, QueryResult } from "pg";
+import validateEnvironmentVariables from "../utilities/utils";
 
 dotenv.config();
 
@@ -8,7 +9,7 @@ export class Database {
     private pool: Pool;
 
     private constructor() {
-        this.validateEnvironmentVariables();
+        validateEnvironmentVariables(["DB_HOST", "DB_USER", "DB_PASS", "DB_NAME", "DB_PORT"]);
 
         this.pool = new Pool({
             host: process.env.DB_HOST,
@@ -31,21 +32,7 @@ export class Database {
         return this.instance;
     }
 
-    private validateEnvironmentVariables(): void {
-        const required = ["DB_HOST", "DB_USER", "DB_PASS", "DB_NAME", "DB_PORT"];
-        const missing = required.filter((env) => !process.env[env]);
-
-        if (missing.length > 0) {
-            console.error(`Missing required environment variables: ${missing.join(", ")}`);
-        }
-    }
-
-    // private setupPoolEvents(): void {
-    //     this.pool.on("error", (err) => Logger.error(err));
-    //     this.pool.on("connect", () => Logger.database("New client connected to pool"));
-    // }
-
-    async query(sql: string, params: any[] | any = []): Promise<QueryResult> {
+    public async query(sql: string, params: any[] | any = []): Promise<QueryResult> {
         try {
             if (!sql || typeof sql !== "string") {
                 console.error("SQL query is required and must be a string", {
@@ -101,18 +88,7 @@ export class Database {
     //     }
     // }
 
-    async initialize(): Promise<void> {
-        try {
-            const client = await this.pool.connect();
-            console.log(`Connected to the ${process.env.DB_NAME} database`);
-            client.release();
-        } catch (error) {
-            console.error(error as Error);
-            process.exit(1);
-        }
-    }
-
-    async close(): Promise<void> {
+    public async close(): Promise<void> {
         try {
             await this.pool.end();
             console.log("Database connections closed");
@@ -121,11 +97,30 @@ export class Database {
         }
     }
 
-    getPoolStats() {
+    public getPoolStats() {
         return {
             totalCount: this.pool.totalCount,
             idleCount: this.pool.idleCount,
             waitingCount: this.pool.waitingCount,
         };
     }
+
+    // private setupPoolEvents(): void {
+    //     this.pool.on("error", (err) => Logger.error(err));
+    //     this.pool.on("connect", () => Logger.database("New client connected to pool"));
+    // }
+
+    // ===== START METHOD ===== //
+    async initialize(): Promise<void> {
+        try {
+            const client = await this.pool.connect();
+            console.log(`Connected to the ${process.env.DB_NAME} database`);
+            client.release();
+        } catch (error) {
+            console.error(error as Error);
+            this.close();
+            process.exit(1);
+        }
+    }
+
 }
