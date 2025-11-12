@@ -1,6 +1,6 @@
 //& Users
 export type User = {
-    id: number;
+    uid: number;
     name: string;
     email: string;
     password: string;
@@ -8,14 +8,14 @@ export type User = {
 }
 
 export type Student = Omit<User, "id"> & {
-    id?: number;
+    uid?: number;
     identity_document: number;
     state: boolean;
     profile_photo: string;
 }
 
 export type Admin = Omit<User, "id"> & {
-    id?: number;
+    uid?: number;
 }
 
 // Documents

@@ -8,6 +8,7 @@ dotenv.config();
 
 interface SessionData {
     uid: number;
+    email: string;
     role: 'admin' | 'student';
 }
 
@@ -30,7 +31,7 @@ export const login = async (credentials: User) => {
     const existingAdmin: Admin = await GetAdmin(credentials.email);
     const existingStudent = await GetStudent(credentials.email);
 
-    const user = existingAdmin ? existingAdmin : existingStudent;
+    const user: Admin | Student = existingAdmin ? existingAdmin : existingStudent;
 
     // const isPasswordValid = await comparePassword(credentials.password, user.password);
     const isEmailValid = user.email === credentials.email;
@@ -44,7 +45,8 @@ export const login = async (credentials: User) => {
     }
 
     const payload: SessionData = {
-        uid: user.id,
+        uid: user.uid,
+        email: user.email,
         role: user.role,
     }
 
@@ -57,7 +59,7 @@ export const login = async (credentials: User) => {
     return {
         token,
         user: {
-            uid: user.id,
+            uid: user.uid,
             role: user.role
         }
     };
@@ -137,7 +139,7 @@ export const verifySession = async (token: string) => {
         invalid: "Invalid token",
         role: "Invalid role",
         notFound: "User not found",
-    }    
+    }
 
     if (!token) {
         throw new Error(errors.token);
@@ -153,7 +155,7 @@ export const verifySession = async (token: string) => {
     const student = await GetStudent(decoded.email);
 
     console.log(decoded.role, admin, student);
-    
+
 
     if (!admin && decoded.role === 'admin') {
         throw new Error(errors.notFound);
@@ -164,10 +166,9 @@ export const verifySession = async (token: string) => {
     }
 
     return {
-        uid: decoded.id,
-        username: decoded.name,
+        uid: decoded.uid,
         role: decoded.role,
         email: decoded.email,
-        state:true
+        state: true
     };
 }; 
