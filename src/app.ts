@@ -47,7 +47,7 @@ const corsOptions = {
 // Middlewares
 app.use(cors(corsOptions));
 app.use(express.json());
-app.use(GlobalLimiter);
+// app.use(GlobalLimiter);
 app.use(cookieParser());
 
 // Routes Use

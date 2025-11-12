@@ -29,7 +29,7 @@ export const login = async (credentials: User) => {
     }
 
     const existingAdmin: Admin = await GetAdmin(credentials.email);
-    const existingStudent = await GetStudent(credentials.email);
+    const existingStudent: Student = await GetStudent(credentials.email);
 
     const user: Admin | Student = existingAdmin ? existingAdmin : existingStudent;
 
@@ -58,10 +58,7 @@ export const login = async (credentials: User) => {
 
     return {
         token,
-        user: {
-            uid: user.uid,
-            role: user.role
-        }
+        user: user
     };
 
 };
@@ -153,9 +150,6 @@ export const verifySession = async (token: string) => {
 
     const admin = await GetAdmin(decoded.email);
     const student = await GetStudent(decoded.email);
-
-    console.log(decoded.role, admin, student);
-
 
     if (!admin && decoded.role === 'admin') {
         throw new Error(errors.notFound);

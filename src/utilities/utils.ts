@@ -8,24 +8,24 @@ const ScenaryRepo = new ScenaryRepository();
 export const normalizeStudent = async (student: Student) => {
     const documents = await GetAllDocuments();
     const binnacles = await GetAllBinnacles();
-    const scenary = await ScenaryRepo.Find(student.id as number);
+    const scenary = await ScenaryRepo.Find(student.uid as number);
 
     const listDocuments = documents.filter(
-        (document: Document) => document.student_id === student.id
+        (document: Document) => document.student_id === student.uid
     );
 
     const listBinnacles = binnacles.filter(
-        (binnacle: Binnacle) => binnacle.student_id === student.id
+        (binnacle: Binnacle) => binnacle.student_id === student.uid
     );
 
     return {
-        id: student.id,
+        id: student.uid,
         name: student.name,
         identity_document: student.identity_document,
         email: student.email,
         state: Boolean(student.state),
         profile_photo: student.profile_photo || "/",
-        scenary: scenary?.student_id === student.id,
+        scenary: scenary?.student_id === student.uid,
         documents: {
             arl: listDocuments.find((doc: Document) => doc.document_type === "arl") || null,
             coverLetter: listDocuments.find((doc: Document) => doc.document_type === "coverLetter") || null,
