@@ -11,6 +11,7 @@ import filesRoutes from "./layers/routes/files.routes";
 import authRoutes from "./layers/routes/auth.routes";
 import path from "path";
 import { Database } from "./dependences/Database";
+import { GlobalLimiter } from "./middlewares/rateLimiter.middleware";
 
 dotenv.config();
 
@@ -29,15 +30,6 @@ const DBConnection = Database.getInstance();
 DBConnection.initialize();
 socketManager.initialize();
 
-// // Rate Limit
-// const limiter = rateLimit({
-//     windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS || "900000"),
-//     max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || "100"),
-//     message: {
-//         error: 'Demasiadas peticiones desde esta IP, por favor intente nuevamente más tarde.'
-//     }
-// });
-
 // CORS
 const corsOptions = {
     origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
@@ -52,19 +44,11 @@ const corsOptions = {
     allowedHeaders: ["Content-Type", "Authorization"],
 };
 
-
 // Middlewares
 app.use(cors(corsOptions));
+app.use(GlobalLimiter);
 app.use(express.json());
 app.use(cookieParser())
-
-// app.use((req, res, next) => {
-//     res.header('Access-Control-Allow-Credentials', 'true');
-//     res.header('Access-Control-Allow-Origin', 'http://localhost:3000');
-//     res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-//     res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, Cookie');
-//     next();
-// });
 
 // Routes Use
 app.use("/admin", adminRoutes);

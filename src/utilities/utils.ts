@@ -64,3 +64,11 @@ export default function validateEnvironmentVariables(variables: string[]): void 
         console.error(`Missing required environment variables: ${missing.join(", ")}`);
     }
 }
+
+export const Time = {
+    second: (n: number) => n * 1000,
+    minute: (n: number) => n * 60 * 1000,
+    hour: (n: number) => n * 60 * 60 * 1000,
+    day: (n: number) => n * 24 * 60 * 60 * 1000,
+    week: (n: number) => n * 7 * 24 * 60 * 60 * 1000,
+};
