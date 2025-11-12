@@ -11,7 +11,7 @@ export const CreateDocument = async (document: Document) => {
 export const GetAllDocuments = async () => {
     const query = "SELECT * FROM documents";
     const { rows } = await connection.query(query);
-    return rows[0];
+    return rows;
 }
 
 export const GetDocument = async (id: number) => {
@@ -43,7 +43,7 @@ export const CreateBinnacle = async (binnacle: Binnacle) => {
 export const GetAllBinnacles = async () => {
     const query = "SELECT * FROM binnacles";
     const { rows } = await connection.query(query);
-    return rows[0];
+    return rows;
 }
 
 export const GetBinnacle = async (id: number) => {

@@ -61,7 +61,7 @@ export const login = async (credentials: User) => {
     return {
         token,
         user: {
-            id: user.id,
+            uid: user.id,
             email: user.email,
             name: user.name,
             role: user.role
@@ -101,7 +101,7 @@ export const register = async (credentials: User) => {
     const existingAdmin = await GetAdmin(credentials.email);
     const existingStudent = await GetStudent(credentials.email);
 
-    const [user] = existingAdmin.length > 0 ? existingAdmin : existingStudent;
+    const user = existingAdmin ? existingAdmin : existingStudent;
 
     if (user) {
         for (const field of Object.keys(AlreadyExistsErrors)) {
@@ -136,29 +136,6 @@ export const register = async (credentials: User) => {
     return normalizedStudent;
 };
 
-// export const createTestSession = async (userType: "admin" | "student") => {
-
-//     if (!userType || !['admin', 'student'].includes(userType)) {
-//         throw new Error('Tipo de usuario no válido');
-//     }
-
-//     const testUser = {
-//         id: 'test-' + Date.now(),
-//         role: userType,
-//         email: `test-${userType}@example.com`
-//     };
-
-//     const token = jwt.sign(testUser, SECRET, { expiresIn: '1h' });
-
-//     return {
-//         token,
-//         user: testUser
-//     };
-// } catch (error: any) {
-//     throw new Error(error.message);
-// }
-// };
-
 export const verifySession = async (token: string) => {
 
     const errors = {
@@ -181,18 +158,22 @@ export const verifySession = async (token: string) => {
     const admin = await GetAdmin(decoded.email);
     const student = await GetStudent(decoded.email);
 
-    if (admin.length === 0 && decoded.role === 'admin') {
+    console.log(decoded.role, admin, student);
+    
+
+    if (!admin && decoded.role === 'admin') {
         throw new Error(errors.notFound);
     }
 
-    if (student.length === 0 && decoded.role === 'student') {
+    if (!student && decoded.role === 'student') {
         throw new Error(errors.notFound);
     }
 
     return {
-        id: decoded.id,
+        uid: decoded.id,
+        username: decoded.name,
         role: decoded.role,
         email: decoded.email,
-        name: decoded.name
+        state:true
     };
 }; 

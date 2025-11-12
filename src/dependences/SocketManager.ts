@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import { Server as HTTPServer } from 'http';
 import { Server, Socket } from "socket.io";
 import { ActiveUsers } from "../types/SocketManagerTypes";
+import { Dispatcher } from "../lib/Dispatcher";
 
 dotenv.config();
 
@@ -15,7 +16,8 @@ export class SocketManager {
     private Admins = new Map<string, any>();
     private Students = new Map<string, any>();
 
-    constructor(server: HTTPServer) {
+
+    private constructor(server: HTTPServer) {
         this.io = new Server(server, {
             // solo WebSockets, nada de long polling
             // transports: ["websocket"],
@@ -28,6 +30,7 @@ export class SocketManager {
                 methods: ["GET", "POST"],
             },
         });
+
     }
 
     //? ===== PUBLIC METHODS ===== *//
@@ -38,10 +41,11 @@ export class SocketManager {
         return SocketManager.instance;
     }
 
-    //? ===== PROTECTED METHODS ===== *//
-    protected getActiveUsers(): ActiveUsers[] {
+    public getActiveUsers(): ActiveUsers[] {
         return Array.from(this.Users.entries()).map(([userUID, socketUID]) => ({ userUID, socketUID }))
     }
+
+    //? ===== PROTECTED METHODS ===== *//
 
     //? ===== PRIVATE METHODS ===== *//
     private logConnectionStatus() {
@@ -64,14 +68,11 @@ export class SocketManager {
     initialize() {
         try {
             console.log("\x1b[33m%s\x1b[0m", "SocketManager iniciado");
-            this.io.on("connection", (socket) => {
+            this.io.on("connection", (socket: Socket) => {
                 console.log("\x1b[32m%s\x1b[0m", "Nueva conexión de socket:", socket.id);
                 if (!this.Users.has(socket.id)) {
                     this.Users.set(socket.id, socket);
                 }
-
-                console.log(this.Users.entries());
-
 
                 socket.on("client_connected", (data) => {
                     const { token } = data;
@@ -95,18 +96,23 @@ export class SocketManager {
                     if (decoded.role === "admin") {
                         if (!this.Admins.has(socket.id)) {
                             this.Admins.set(socket.id, payload);
+                            socket.join("admins")
                         }
                     }
 
                     if (decoded.role === "student") {
                         if (!this.Students.has(socket.id)) {
                             this.Students.set(socket.id, payload);
+                            socket.join("students")
                         }
                     }
 
                     console.log("\x1b[31m%s\x1b[0m", "Client decoded", rest);
                     this.logConnectionStatus();
                 });
+
+                const dispatcher = new Dispatcher(this.io, socket);
+                dispatcher.setEvents();
 
                 socket.on("update_data", (data) => {
                     this.Users.forEach((user) => {
@@ -122,7 +128,7 @@ export class SocketManager {
                     this.logConnectionStatus();
                 });
 
-                this.logConnectionStatus();
+                // this.logConnectionStatus();
             });
         } catch (error: any) {
             console.error("Error en SocketManager:", error.message);
