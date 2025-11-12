@@ -46,9 +46,9 @@ const corsOptions = {
 
 // Middlewares
 app.use(cors(corsOptions));
-app.use(GlobalLimiter);
 app.use(express.json());
-app.use(cookieParser())
+app.use(GlobalLimiter);
+app.use(cookieParser());
 
 // Routes Use
 app.use("/admin", adminRoutes);

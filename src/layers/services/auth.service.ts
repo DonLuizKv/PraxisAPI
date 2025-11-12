@@ -7,10 +7,8 @@ import { GetAdmin, GetStudent, GenerateStudent, GenerateAdmin } from '../reposit
 dotenv.config();
 
 interface SessionData {
-    id: number;
-    name: string;
+    uid: number;
     role: 'admin' | 'student';
-    email: string;
 }
 
 const SECRET: string = process.env.JWT_SECRET as string;
@@ -46,10 +44,8 @@ export const login = async (credentials: User) => {
     }
 
     const payload: SessionData = {
-        id: user.id,
-        email: user.email,
+        uid: user.id,
         role: user.role,
-        name: user.name
     }
 
     if (!SECRET) {
@@ -62,8 +58,6 @@ export const login = async (credentials: User) => {
         token,
         user: {
             uid: user.id,
-            email: user.email,
-            name: user.name,
             role: user.role
         }
     };

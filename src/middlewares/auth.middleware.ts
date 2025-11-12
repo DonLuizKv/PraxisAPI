@@ -1,40 +1,39 @@
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import { Request, Response, NextFunction } from 'express';
+import { TokenType } from '../utilities/Types';
 
 dotenv.config();
 
 interface AuthenticatedRequest extends Request {
-    user?: string | JwtPayload;
+    user?: TokenType;
 }
 
-export const verifyToken = (req: AuthenticatedRequest, res: Response, next: NextFunction): any => {
-    const token = req.headers['x-access-token'] || req.headers['authorization'];
-
-    if (!token || typeof token !== 'string') {
-        return res.status(403).json({ error: 'Se requiere un token para la autenticación' });
-    }
-
+export const TokenVerification = (req: AuthenticatedRequest, res: Response, next: NextFunction): any => {
     try {
-        const tokenWithoutBearer = token.startsWith('Bearer ') ? token.slice(7) : token;
-        const decoded = jwt.verify(tokenWithoutBearer, process.env.JWT_SECRET as string);
+        const token = req.cookies?.session_token;
+        if (!token) return res.status(401).json({ message: "Unauthorized, you need a Token." });
+
+        const decoded = jwt.verify(token, process.env.JWT_SECRET!) as TokenType;
         req.user = decoded;
         next();
-    } catch (error) {
-        return res.status(401).json({ error: 'Token inválido o expirado' });
+
+    } catch (error: unknown) {
+        return res.status(401).json({ error: "Invalid or expired Token" });
     }
 };
 
 export const isAdmin = (req: AuthenticatedRequest, res: Response, next: NextFunction): any => {
-    if (req.user && typeof req.user !== 'string' && req.user.role === 'admin') {
+    if (req.user && req.user?.role === "admin") {
         return next();
     }
-    return res.status(403).json({ error: 'Se requieren privilegios de administrador' });
+
+    return res.status(403).json({ error: 'Administrator privileges are required' });
 };
 
 export const isStudent = (req: AuthenticatedRequest, res: Response, next: NextFunction): any => {
-    if (req.user && typeof req.user !== 'string' && req.user.role === 'student') {
+    if (req.user && req.user?.role === 'student') {
         return next();
     }
-    return res.status(403).json({ error: 'Se requieren privilegios de estudiante' });
+    return res.status(403).json({ error: 'Student privileges are required' });
 };

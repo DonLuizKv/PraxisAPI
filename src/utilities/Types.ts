@@ -41,6 +41,11 @@ export type Scenary = {
     address: string;
 }
 
+export type TokenType = {
+    uid:string,
+    role: "student" | "admin"
+}
+
 
 
 

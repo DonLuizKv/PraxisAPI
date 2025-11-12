@@ -1,11 +1,11 @@
 import express from "express";
-import { verifyToken, isAdmin } from "../../middlewares/auth.middleware";
+import { TokenVerification, isAdmin } from "../../middlewares/auth.middleware";
 import { DeleteBinnacle, DeleteDocument, GetBinnacleById, GetDocumentById, UpdateBinnacle, UpdateDocument, UploadBinnacle, UploadDocument, GetAllDocuments, GetAllBinnacles } from "../controllers/files.controller";
 import upload from "../../middlewares/upload.middleware";
 
 const router = express.Router();
 
-router.use(verifyToken);
+router.use(TokenVerification);
 +// router.use(isAdmin);
 
 router.post("/documents", upload.single("file"), UploadDocument);
