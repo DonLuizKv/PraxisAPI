@@ -1,19 +1,18 @@
 import { Request, Response } from 'express';
 import { login, register, verifySession } from '../services/auth.service';
-import { ErrorResponse } from '../../utilities/utils';
+import { ErrorResponse, Time } from '../../utilities/utils';
 
 export const Login = async (req: Request, res: Response): Promise<any> => {
     try {
         const auth = await login(req.body);
 
         res.cookie("session_token", auth.token, {
+            secure: true,
+            sameSite: "none",
             httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "lax",
-            domain:"localhost",
-            path:"/",
-            maxAge: 24 * 60 * 60 * 1000,
-        })
+            maxAge: Time.day(1),
+            path:"/"
+        });
 
         return res.status(200).json(auth.user);
     } catch (error: any) {

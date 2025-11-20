@@ -35,6 +35,7 @@ const corsOptions = {
     origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
         if (!origin || ALLOWED_ORIGINS.includes(origin) || origin === "http://localhost:3000") {
             callback(null, true);
+            console.log(origin);
         } else {
             callback(new Error("Not allowed by CORS"));
         }
