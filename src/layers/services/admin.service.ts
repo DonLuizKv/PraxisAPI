@@ -1,99 +1,67 @@
-import { verifyField } from "../repositories/generic.model";
-import { Admin } from "../../utilities/Types";
+import { Admin } from "../../types/user";
 import { AdminRepository } from "../repositories/admin.repository";
 
-const AdminRepo = new AdminRepository();
+export class AdminService {
 
-//& POST
-export const createAdmin = async (admin: Admin) => {
-    const errors = {
-        email: "This email is already in use",
-        name: "This name is already in use",
-    };
+    constructor(
+        private adminRepository: AdminRepository = new AdminRepository()
+    ) { }
 
-    for (const field of Object.keys(errors)) {
-        const value = admin[field as keyof Admin];
-        const existInDB = await verifyField("admins", field, value);
-        if (existInDB) {
-            throw new Error(errors[field as keyof typeof errors]);
+    // POST
+    async createAdmin(admin: Admin): Promise<void> {
+
+        await this.adminRepository.Create(admin);
+    }
+
+    //$ GET
+    async getAdmins(): Promise<Admin[] | null> {
+
+        const admins = await this.adminRepository.FindAll();
+
+        if (!admins) {
+            return null;
         }
+
+        return admins;
     }
 
-    await AdminRepo.Insert(admin);
-}
+    //$ GET by email or uid
+    async getAdmin(value: string, typeSearch: "email" | "uid"): Promise<Admin | null> {
+        const admin = await this.adminRepository.Find(value, typeSearch);
 
-//$ GET
-export const getAdmins = async () => {
-    const errors = {
-        notFound: "Admins not found",
-    }
-
-    const admins = await AdminRepo.FindAll();
-
-    if (admins) {
-        throw new Error(errors.notFound);
-    }
-
-    return admins;
-}
-
-//$ GET BY ID
-export const getAdminById = async (id: number) => {
-    const errors = {
-        notFound: "Admin not found",
-    }
-
-    const admin = await AdminRepo.Find(id);
-
-    if (admin) {
-        throw new Error(errors.notFound);
-    }
-
-    return admin;
-}
-
-//! DELETE
-export const deleteAdmin = async (id: number) => {
-    const errors = {
-        notFound: "Admin not found",
-    }
-
-    const admin = await AdminRepo.Find(id);
-
-    if (admin) {
-        throw new Error(errors.notFound);
-    }
-
-    const result = await AdminRepo.Delete(id);
-    return result;
-}
-
-//# UPDATE
-export const updateAdmin = async (id: number, updatedAdmin: Admin) => {
-    const errors = {
-        notFound: "Admin not found",
-        email: "This email is already in use",
-        name: "This name is already in use",
-    }
-
-    const admin = await AdminRepo.Find(id);
-
-    if (admin) {
-        throw new Error(errors.notFound);
-    }
-
-    for (const field of Object.keys(errors)) {
-        const value = updatedAdmin[field as keyof Admin];
-        const existInDB = await verifyField("admins", field, value);
-        if (existInDB) {
-            throw new Error(errors[field as keyof typeof errors]);
+        if (!admin) {
+            return null;
         }
+
+        return admin;
     }
 
-    const result = await AdminRepo.Update(id, updatedAdmin);
-    return result;
-}
+    //! DELETE
+    async deleteAdmin(id: string): Promise<{ error?: string, deleted?: boolean }> {
 
+        const admin = await this.adminRepository.Find(id, "uid");
+
+        if (!admin) {
+            return { error: "Admin not found", deleted: false };
+        }
+
+        const result = await this.adminRepository.Delete(id);
+        return { deleted: result };
+    }
+
+    //# UPDATE
+    async updateAdmin(id: string, updatedAdmin: Admin): Promise<{ error?: string, updated?: boolean }> {
+
+        const admin = await this.adminRepository.Find(id, "uid");
+
+        if (!admin) {
+            return { error: "Admin not found", updated: false };
+        }
+
+        const result = await this.adminRepository.Update(id, updatedAdmin);
+        return { updated: result };
+    }
+}
 
 
 

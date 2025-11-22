@@ -1,27 +1,25 @@
 import express from "express";
 import { TokenVerification, isAdmin } from "../../middlewares/auth.middleware";
-import { DeleteBinnacle, DeleteDocument, GetBinnacleById, GetDocumentById, UpdateBinnacle, UpdateDocument, UploadBinnacle, UploadDocument, GetAllDocuments, GetAllBinnacles } from "../controllers/files.controller";
 import upload from "../../middlewares/upload.middleware";
 
 const router = express.Router();
 
 router.use(TokenVerification);
-+// router.use(isAdmin);
 
-router.post("/documents", upload.single("file"), UploadDocument);
-router.post("/binnacles", upload.single("file"), UploadBinnacle);
+router.post("/documents", upload.single("file"));
+router.post("/binnacles", upload.single("file"));
 
-router.get("/documents/:id", GetDocumentById);
-router.get("/binnacles/:id", GetBinnacleById);
+router.get("/documents/:id");
+router.get("/binnacles/:id");
 
-router.get("/documents", GetAllDocuments);
-router.get("/binnacles", GetAllBinnacles);
+router.get("/documents", );
+router.get("/binnacles", );
 
-router.put("/documents/:id", upload.single("file"), UpdateDocument);
-router.put("/binnacles/:id", upload.single("file"), UpdateBinnacle);
+router.put("/documents/:id", upload.single("file"));
+router.put("/binnacles/:id", upload.single("file"));
 
-router.delete("/documents/:id", DeleteDocument);
-router.delete("/binnacles/:id", DeleteBinnacle);
+router.delete("/documents/:id");
+router.delete("/binnacles/:id");
 
 
 export default router; 

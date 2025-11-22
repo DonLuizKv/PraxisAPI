@@ -4,13 +4,13 @@ export abstract class Repository<T extends object> {
 
     constructor(
         protected readonly table: string,
-         readonly database = Database.getInstance()
+        readonly database = Database.getInstance()
     ) { }
 
-    async Find(id: number | string): Promise<T | null> {
+    async Find(value: string, typeSearch: "email" | "uid"): Promise<T | null> {
         const { rowCount, rows } = await this.database.query(
-            `SELECT * FROM ${this.table} WHERE id = $1 LIMIT 1`,
-            [id]
+            `SELECT * FROM ${this.table} WHERE ${typeSearch} = $1 LIMIT 1`,
+            [value]
         );
         return rowCount ? (rows[0] as T) : null;
     }
@@ -22,7 +22,7 @@ export abstract class Repository<T extends object> {
         return rows as T[];
     }
 
-    async Insert(data: Partial<T>): Promise<void> {
+    async Create(data: Partial<T>): Promise<void> {
         const keys = Object.keys(data);
         const values = Object.values(data);
 
@@ -32,14 +32,16 @@ export abstract class Repository<T extends object> {
         await this.database.query(query, values);
     }
 
-    async Update(id: number | string, data: Partial<T>): Promise<void> {
+    async Update(id: number | string, data: Partial<T>): Promise<boolean> {
         const keys = Object.keys(data);
         const values = Object.values(data);
 
         const setClause = keys.map((_, i) => `$${i + 1}`).join(", ");
         const query = `UPDATE ${this.table} SET ${setClause} WHERE id = $1`;
 
-        await this.database.query(query, [...values, id]);
+        const { rowCount } = await this.database.query(query, [...values, id]);
+
+        return (rowCount ?? 0) > 0;
     }
 
     async Delete(id: number | string): Promise<boolean> {

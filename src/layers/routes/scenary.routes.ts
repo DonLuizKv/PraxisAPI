@@ -1,16 +1,15 @@
 import express from "express";
 import { TokenVerification, isAdmin } from "../../middlewares/auth.middleware";
-import { CreateScenary, GetScenarys, GetScenary, UpdateScenary, DeleteScenary } from "../controllers/scenary.controller";
 
 const router = express.Router();
 
 router.use(TokenVerification);
 
-router.post("/", CreateScenary);
-router.get("/", GetScenarys);
-router.get("/:id", GetScenary);
-router.put("/:id", UpdateScenary);
-router.delete("/:id", DeleteScenary);
+router.post("/", );
+router.get("/", );
+router.get("/:id", );
+router.put("/:id", );
+router.delete("/:id", );
 
 
 export default router;

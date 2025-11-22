@@ -1,38 +1,35 @@
-import bcrypt from 'bcryptjs';
-import { GetAllDocuments, GetAllBinnacles } from "../layers/repositories/file.repository";
-import { Student, Document, Binnacle } from "./Types";
-import { ScenaryRepository } from '../layers/repositories/scenary.repository';
+// export const normalizeStudent = async (student: Student) => {
 
-const ScenaryRepo = new ScenaryRepository();
+//     const [documents, binnacles, scenary] = await Promise.all([
+//         GetAllDocuments(),
+//         GetAllBinnacles(),
+//         ScenaryRepo.Find(student.email),
+//     ]);
 
-export const normalizeStudent = async (student: Student) => {
-    const documents = await GetAllDocuments();
-    const binnacles = await GetAllBinnacles();
-    const scenary = await ScenaryRepo.Find(student.uid as number);
+//     // const listDocuments = documents.filter(
+//     //     (document: Document) => document.student_id === student.uid
+//     // );
 
-    const listDocuments = documents.filter(
-        (document: Document) => document.student_id === student.uid
-    );
+//     // const listBinnacles = binnacles.filter(
+//     //     (binnacle: Binnacle) => binnacle.student_id === student.uid
+//     // );
 
-    const listBinnacles = binnacles.filter(
-        (binnacle: Binnacle) => binnacle.student_id === student.uid
-    );
-
-    return {
-        id: student.uid,
-        name: student.name,
-        identity_document: student.identity_document,
-        email: student.email,
-        state: Boolean(student.state),
-        profile_photo: student.profile_photo || "/",
-        scenary: scenary?.student_id === student.uid,
-        documents: {
-            arl: listDocuments.find((doc: Document) => doc.document_type === "arl") || null,
-            coverLetter: listDocuments.find((doc: Document) => doc.document_type === "coverLetter") || null,
-        },
-        binnacles: listBinnacles || [],
-    };
-};
+//     return {
+//         uid: student.uid,
+//         username: student.username,
+//         identification: student.identification,
+//         email: student.email,
+//         state: Boolean(student.state),
+//         profile_photo: student.avatar || "/",
+//         scenary: scenary?.student_id === student.uid,
+//         documents: {
+//             arl: [],
+//             coverLetter: [],
+//             cv: [],
+//         },
+//         binnacles: [],
+//     };
+// };
 
 export const ErrorResponse = (error: unknown, clauses: string | string[], message: string) => {
     const err = error as Error;
@@ -48,14 +45,7 @@ export const ErrorResponse = (error: unknown, clauses: string | string[], messag
     };
 };
 
-export const hashPassword = async (plainPassword: string): Promise<string> => {
-    const salt = await bcrypt.genSalt(10);
-    return bcrypt.hash(plainPassword, salt);
-};
 
-export const comparePassword = async (plainPassword: string, hashedPassword: string): Promise<boolean> => {
-    return bcrypt.compare(plainPassword, hashedPassword);
-};
 
 export default function validateEnvironmentVariables(variables: string[]): void {
     const missing = variables.filter((env) => !process.env[env]);

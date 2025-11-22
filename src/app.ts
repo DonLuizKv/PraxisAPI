@@ -35,7 +35,6 @@ const corsOptions = {
     origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
         if (!origin || ALLOWED_ORIGINS.includes(origin) || origin === "http://localhost:3000") {
             callback(null, true);
-            console.log(origin);
         } else {
             callback(new Error("Not allowed by CORS"));
         }
@@ -53,12 +52,12 @@ app.use(cookieParser());
 
 // Routes Use
 app.use("/admin", adminRoutes);
-app.use("/scenary", scenaryRoutes);
+// app.use("/scenary", scenaryRoutes);
 app.use("/student", studentRoutes);
-app.use("/files", filesRoutes);
+// app.use("/files", filesRoutes);
 app.use("/auth", authRoutes);
 
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Welcome
 app.get("/", (req, res) => {

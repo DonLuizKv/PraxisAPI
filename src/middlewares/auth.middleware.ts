@@ -1,12 +1,12 @@
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import { Request, Response, NextFunction } from 'express';
-import { TokenType } from '../utilities/Types';
+import { Token } from '../types/auth';
 
 dotenv.config();
 
 interface AuthenticatedRequest extends Request {
-    user?: TokenType;
+    user?: Token;
 }
 
 export const TokenVerification = (req: AuthenticatedRequest, res: Response, next: NextFunction): any => {
@@ -14,7 +14,7 @@ export const TokenVerification = (req: AuthenticatedRequest, res: Response, next
         const token = req.cookies?.session_token;
         if (!token) return res.status(401).json({ message: "Unauthorized, you need a Token." });
 
-        const decoded = jwt.verify(token, process.env.JWT_SECRET!) as TokenType;
+        const decoded = jwt.verify(token, process.env.JWT_SECRET!) as Token;
         req.user = decoded;
         next();
 

@@ -1,8 +1,8 @@
-import { Admin } from "../../utilities/Types";
+import { Admin } from "../../types/user";
 import { Repository } from "./Repository";
 
 export class AdminRepository extends Repository<Admin> {
-    constructor (){
+    constructor() {
         super("admins")
     }
 }

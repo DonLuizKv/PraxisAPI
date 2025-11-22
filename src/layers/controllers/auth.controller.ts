@@ -1,20 +1,22 @@
 import { Request, Response } from 'express';
-import { login, register, verifySession } from '../services/auth.service';
 import { ErrorResponse, Time } from '../../utilities/utils';
+import { AuthService } from '../services/auth.service';
+
+const service = new AuthService();
 
 export const Login = async (req: Request, res: Response): Promise<any> => {
     try {
-        const auth = await login(req.body);
+        const auth = await service.login(req.body);
 
         res.cookie("session_token", auth.token, {
             secure: true,
             sameSite: "none",
             httpOnly: true,
             maxAge: Time.day(1),
-            path:"/"
+            path: "/"
         });
 
-        return res.status(200).json(auth.user);
+        return res.status(200).json({ status: true, role: auth.role });
     } catch (error: any) {
         const { body, statusCode } = ErrorResponse(error, ["Invalid", "not found"], "Error trying to login");
         return res.status(statusCode).json(body);
@@ -23,7 +25,7 @@ export const Login = async (req: Request, res: Response): Promise<any> => {
 
 export const Register = async (req: Request, res: Response): Promise<any> => {
     try {
-        await register(req.body);
+        await service.register(req.body);
         return res.status(200).json({ message: "User created successfully" });
     } catch (error: any) {
         console.log(error);
@@ -38,7 +40,7 @@ export const VerifySession = async (req: Request, res: Response): Promise<any> =
 
         if (!token) return res.status(403).json({ error: "Token cookie required" });
 
-        const result = await verifySession(token);
+        const result = await service.verifySession(token);
         return res.status(200).json(result);
 
     } catch (error: any) {

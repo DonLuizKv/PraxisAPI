@@ -1,168 +1,78 @@
 import jwt from 'jsonwebtoken';
-import dotenv from 'dotenv';
-import { comparePassword, hashPassword, normalizeStudent } from '../../utilities/utils';
-import { User, Student, Admin } from '../../utilities/Types';
-import { GetAdmin, GetStudent, GenerateStudent, GenerateAdmin } from '../repositories/auth.repository';
+import { User, Student, Admin } from '../../types/user';
+import { Token } from '../../types/auth';
+import { StudentService } from './student.service';
+import { AdminService } from './admin.service';
+import { comparePassword } from '../../utilities/password';
 
-dotenv.config();
+export class AuthService {
 
-interface SessionData {
-    uid: number;
-    email: string;
-    role: 'admin' | 'student';
+    constructor(
+        private readonly SECRET: string = process.env.JWT_SECRET as string,
+        private readonly studentService: StudentService = new StudentService(),
+        private readonly adminService: AdminService = new AdminService()
+    ) { }
+
+    public async login(credentials: User) {
+        const { email, password } = credentials;
+
+        const [admin, student] = await Promise.all([
+            this.adminService.getAdmin(email, "email"),
+            this.studentService.getStudent(email, "email")
+        ]);
+
+        const user: Admin | Student | null = admin || student;
+
+        if (!user) {
+            throw new Error("User not found");
+        }
+
+        // const isPasswordValid: boolean = await comparePassword(password, user.password);
+
+        // if (!isPasswordValid) {
+        //     throw new Error("Invalid password");
+        // }
+
+        const payload: Token = {
+            sub: user.uid,
+            role: user.role,
+        }
+
+        const token: string = jwt.sign(payload, this.SECRET, { expiresIn: "24h" });
+
+        return {
+            token,
+            role: user.role
+        };
+    }
+
+    public async register(credentials: User) {}
+
+    public async verifySession(token: string) {
+
+        if (!token) throw new Error("Token not provided");
+
+        const decoded: Token = jwt.verify(token, this.SECRET) as Token;
+
+        if (decoded.role !== "admin" && decoded.role !== "student") {
+            throw new Error("Invalid role");
+        }
+
+        switch (decoded.role) {
+            case "admin":
+                const admin: Admin | null = await this.adminService.getAdmin(decoded.sub, "uid");
+                if (!admin) throw new Error("Admin not found");
+                return admin;
+
+            case "student":
+                const student: Student | null = await this.studentService.getStudent(decoded.sub, "uid");
+                if (!student) throw new Error("Student not found");
+                return student;
+
+            default:
+                throw new Error("Invalid role or Not found");
+        }
+
+    }
+
 }
-
-const SECRET: string = process.env.JWT_SECRET as string;
-
-export const login = async (credentials: User) => {
-
-    const errors = {
-        empty: "Required field",
-        email: "Invalid email",
-        password: "Invalid password",
-        user: "Invalid credentials",
-        env: "Environment variables not found"
-    }
-
-    if (!credentials.email || !credentials.password) {
-        throw new Error(errors.empty);
-    }
-
-    const existingAdmin: Admin = await GetAdmin(credentials.email);
-    const existingStudent: Student = await GetStudent(credentials.email);
-
-    const user: Admin | Student = existingAdmin ? existingAdmin : existingStudent;
-
-    // const isPasswordValid = await comparePassword(credentials.password, user.password);
-    const isEmailValid = user.email === credentials.email;
-
-    // if (!isPasswordValid) {
-    //     throw new Error(errors.password);
-    // }
-
-    if (!isEmailValid) {
-        throw new Error(errors.email);
-    }
-
-    const payload: SessionData = {
-        uid: user.uid,
-        email: user.email,
-        role: user.role,
-    }
-
-    if (!SECRET) {
-        throw new Error(errors.env);
-    }
-
-    const token = jwt.sign(payload, SECRET, { expiresIn: "24h" });
-
-    return {
-        token,
-        user: user
-    };
-
-};
-
-export const register = async (credentials: User) => {
-
-    const emptyErrors = {
-        name: "Required name",
-        email: "Required email",
-        password: "Required password",
-        identity_document: "Required identity document",
-    }
-
-    const AlreadyExistsErrors = {
-        email: "Email already exists",
-        identity_document: "Identity document already exists",
-    }
-
-    //? - Verificamos los campos del estudiante, ya que por ahora
-    //? - los admin/s no se registran
-    for (const field of Object.keys(emptyErrors)) {
-        const valuesToCheck = credentials[field as keyof User];
-        const isEmpty = valuesToCheck === "" || valuesToCheck === null || valuesToCheck === undefined;
-        if (isEmpty) {
-            throw new Error(emptyErrors[field as keyof typeof emptyErrors]);
-        }
-    }
-
-    if (credentials.role !== 'admin' && credentials.role !== 'student') {
-        throw new Error('Not valid role');
-    }
-
-    const existingAdmin = await GetAdmin(credentials.email);
-    const existingStudent = await GetStudent(credentials.email);
-
-    const user = existingAdmin ? existingAdmin : existingStudent;
-
-    if (user) {
-        for (const field of Object.keys(AlreadyExistsErrors)) {
-            const valuesToCheck = credentials[field as keyof User];
-            const isSame = valuesToCheck === user[field as keyof User];
-            if (isSame) {
-                throw new Error(AlreadyExistsErrors[field as keyof typeof AlreadyExistsErrors]);
-            }
-        }
-    }
-
-    const hashedPassword = await hashPassword(credentials.password);
-
-    const newUser = {
-        ...credentials,
-        password: hashedPassword,
-        profile_photo: ""
-    }
-
-    if (credentials.role === 'admin') {
-        await GenerateAdmin(newUser as User);
-    } else if (credentials.role === 'student') {
-        await GenerateStudent(newUser as Student);
-    }
-
-    const normalizedStudent = await normalizeStudent(newUser as Student);
-
-    if (!normalizedStudent) {
-        throw new Error('Error normalizing student');
-    }
-
-    return normalizedStudent;
-};
-
-export const verifySession = async (token: string) => {
-
-    const errors = {
-        token: "Token not provided",
-        invalid: "Invalid token",
-        role: "Invalid role",
-        notFound: "User not found",
-    }
-
-    if (!token) {
-        throw new Error(errors.token);
-    }
-
-    const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as SessionData;
-
-    if (!decoded.role || (decoded.role !== 'admin' && decoded.role !== 'student')) {
-        throw new Error(errors.role);
-    }
-
-    const admin = await GetAdmin(decoded.email);
-    const student = await GetStudent(decoded.email);
-
-    if (!admin && decoded.role === 'admin') {
-        throw new Error(errors.notFound);
-    }
-
-    if (!student && decoded.role === 'student') {
-        throw new Error(errors.notFound);
-    }
-
-    return {
-        uid: decoded.uid,
-        role: decoded.role,
-        email: decoded.email,
-        state: true
-    };
-}; 
