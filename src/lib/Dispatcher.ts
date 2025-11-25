@@ -1,15 +1,23 @@
 import { Server, Socket } from "socket.io";
 import { Channel, Package, Message } from "../types/SocketManagerTypes";
 
+/**
+ * 
+ * {
+ *  type: "direct" | "broadcast";
+ *  to: "user-123" | ["user-123", "user-456", "admins"];
+ *  message: {
+ *      type: string;
+ *      data: any;
+ *   };
+ * }
+ */
 export class Dispatcher {
-
-    private io: Server;
-    private socket: Socket;
-
-    constructor(io: Server, socket: Socket) {
-        this.io = io;
-        this.socket = socket;
-    }
+    constructor(
+        private io: Server,
+        private socket: Socket,
+        private ActiveUsers: Map<string, Socket>
+    ) { }
 
     private Direct(event: string, to: string, message: Message) {
         this.socket.to(to).emit(event, message);
@@ -29,7 +37,7 @@ export class Dispatcher {
         });
     }
 
-    // this.socket.on("ROOM", (data: Package[]) => { });
+    //     this.socket.on("ROOM", (data: Package[]) => { });
     //     this.socket.on("ROOM:ACTION", () => { });
     //     this.socket.on("ROOM:ENTITY:ACTION", () => { });
 
@@ -39,18 +47,14 @@ export class Dispatcher {
     //     this.socket.on("binnacles:binnacles:delete_all", () => { });
     //     this.socket.on("chat", () => { }); // send package to chat room (all users)
 
-
-    // ===== CHAT EVENTS ===== //
     private UserEvents() {
-        this.socket.on("users:login", (data: Package[]) => 
-            {
-                // this.dispatcher("users:create", data)
-                console.log(data);
-            }
-        );
+        this.socket.on("user:login", (data: Package[]) => {
+            console.log(data);
+            this.socket.emit("user:login:success", data);
+        });
     }
 
-    setEvents() {
-        this.UserEvents
+    init() {
+        this.UserEvents();
     }
 }

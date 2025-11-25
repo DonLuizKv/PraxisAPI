@@ -1,5 +1,6 @@
 import dotenv from "dotenv";
 import { Pool, QueryResult } from "pg";
+import { Logger } from "../lib/Logger";
 
 dotenv.config();
 
@@ -32,7 +33,7 @@ export class Database {
     public async query(sql: string, params: any[] | any = []): Promise<QueryResult> {
         try {
             if (!sql || typeof sql !== "string") {
-                console.error("SQL query is required and must be a string", {
+                Logger.error("SQL query is required and must be a string", {
                     styles: {
                         msg: { color: "red" }
                     }
@@ -40,7 +41,7 @@ export class Database {
             }
 
             if (sql.includes("--") || /;\s*drop\s+/i.test(sql)) {
-                console.error("Potentially dangerous SQL detected", {
+                Logger.error("Potentially dangerous SQL detected", {
                     styles: {
                         msg: { color: "red" }
                     }
@@ -58,7 +59,7 @@ export class Database {
             }
 
         } catch (error) {
-            console.error(error as Error);
+            Logger.error(error as Error);
             throw error;
         }
     }
@@ -88,9 +89,9 @@ export class Database {
     public async close(): Promise<void> {
         try {
             await this.pool.end();
-            console.log("Database connections closed");
+            Logger.db("Database connections closed");
         } catch (error) {
-            console.error(error as Error);
+            Logger.error(error as Error);
         }
     }
 
@@ -111,10 +112,10 @@ export class Database {
     async initialize(): Promise<void> {
         try {
             const client = await this.pool.connect();
-            console.log(`Connected to the ${process.env.DB_NAME} database`);
+            Logger.db(`Connected to the ${process.env.DB_NAME} database`);
             client.release();
         } catch (error) {
-            console.error(error as Error);
+            Logger.error(error as Error);
             this.close();
             process.exit(1);
         }

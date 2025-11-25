@@ -12,6 +12,7 @@ import authRoutes from "./layers/routes/auth.routes";
 import path from "path";
 import { Database } from "./dependences/Database";
 import { GlobalLimiter } from "./middlewares/rateLimiter.middleware";
+import { Logger } from "./lib/Logger";
 
 dotenv.config();
 
@@ -45,6 +46,7 @@ const corsOptions = {
 };
 
 // Middlewares
+app.use(Logger.httpMiddleware());
 app.use(cors(corsOptions));
 app.use(express.json());
 // app.use(GlobalLimiter);
@@ -65,5 +67,5 @@ app.get("/", (req, res) => {
 })
 
 server.listen(PORT, () => {
-    console.log(`Server running in ${PORT}`);
+    Logger.info(`Server running in ${PORT}`);
 })
