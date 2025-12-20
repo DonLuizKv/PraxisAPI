@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-import { ErrorResponse } from "../../utilities/utils";
 import { FilesService } from "../services/files.service";
 
 const service = new FilesService();

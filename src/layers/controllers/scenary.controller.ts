@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
 import { createScenary, getScenarys, getScenary, updateScenary, deleteScenary } from "../services/scenary.service";
-import { ErrorResponse } from "../../utilities/utils";
 
 // export const CreateScenary = async (req: Request, res: Response): Promise<any> => {
 //     try {

@@ -22,8 +22,8 @@ export const Login = async (req: Request, res: Response): Promise<any> => {
 };
 
 export const Register = async (req: Request, res: Response): Promise<any> => {
-    const { email, password } = req.body;
-    await service.register(email, password);
+    const { username, email, password } = req.body;
+    await service.register(username, email, password);
 
     res.status(200).json("User created successfully");
 };

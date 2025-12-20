@@ -1,6 +1,6 @@
 import express from "express";
-import { CreateAdmin, GetAdmins, GetAdminById, UpdateAdmin, DeleteAdmin } from "../controllers/admin.controller";
 import { TokenVerification } from "../../middlewares/auth.middleware";
+import { CreateAdmin, GetAdmins, GetAdminById, UpdateAdmin, DeleteAdmin } from "../controllers/admin.controller";
 
 const router = express.Router();
 
