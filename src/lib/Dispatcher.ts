@@ -1,5 +1,5 @@
 import { Server, Socket } from "socket.io";
-import { Channel, Package, Message } from "../types/SocketManagerTypes";
+import { Channel, Package, Message } from "../types/websockets";
 
 /**
  * 

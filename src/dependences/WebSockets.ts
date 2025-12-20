@@ -1,6 +1,6 @@
 import { Server as HTTPServer } from 'http';
 import { Server, Socket } from "socket.io";
-import { ActiveUsers } from "../types/SocketManagerTypes";
+import { ActiveUsers } from "../types/websockets";
 import { Dispatcher } from "../lib/Dispatcher";
 import { Logger } from "../lib/Logger";
 
