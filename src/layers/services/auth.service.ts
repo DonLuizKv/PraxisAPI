@@ -1,35 +1,29 @@
 import jwt from "jsonwebtoken";
-import { Student, Admin } from '../../types/user';
+import { User } from '../../types/user';
 import { Token } from '../../types/auth';
-import { StudentService } from './student.service';
-import { AdminService } from './admin.service';
-import { compare } from '../../utilities/password';
+import { Compare, Hash } from '../../utilities/password';
 import { ErrorManager } from '../../lib/ErrorManager';
+import { generateUID } from "../../utilities/utils";
+import { UserRepository } from '../repositories/user.repository';
 
 export class AuthService {
 
     private readonly JWT_SECRET: string = process.env.JWT_SECRET as string;
-    private readonly adminService: AdminService;
-    private readonly studentService: StudentService;
+    private readonly userRepository: UserRepository;
 
     constructor() {
-        this.adminService = new AdminService();
-        this.studentService = new StudentService();
+        this.userRepository = new UserRepository();
     }
 
     public async login(email: string, password: string) {
 
-        const [admin, student] = await Promise.all([
-            this.adminService.getAdmin(email, "email"),
-            this.studentService.getStudent(email, "email")
-        ]);
+        const user = await this.userRepository.Find(email, "email");
 
-        const user: Admin | Student | null = admin || student;
         if (!user) {
             throw new ErrorManager("User not found", 404);
         }
 
-        const isPasswordValid: boolean = await compare(password, user.password);
+        const isPasswordValid: boolean = await Compare(password, user.password);
         if (!isPasswordValid) {
             throw new ErrorManager("Invalid password", 400);
         }
@@ -49,7 +43,26 @@ export class AuthService {
         };
     }
 
-    public async register(email: string, password: string) {
+    public async register(username: string, email: string, password: string) {
+        const user = await this.userRepository.Find(email, "email");
+
+        if (user) {
+            throw new ErrorManager("User already exists", 400);
+        }
+
+        const uid: string = generateUID("usr");
+        const hashedPassword: string = await Hash(password);
+
+        const newuser: User = {
+            uid,
+            username,
+            email,
+            password: hashedPassword,
+            state: true,
+            role: "student"
+        }
+
+        await this.userRepository.Create(newuser);
 
     }
 
@@ -62,23 +75,13 @@ export class AuthService {
             throw new ErrorManager("Invalid role", 401);
         }
 
-        const user = await Promise.all([
-            this.adminService.getAdmin(decoded.sub, "uid"),
-            this.studentService.getStudent(decoded.sub, "uid")
-        ]);
+        const user = await this.userRepository.Find(decoded.sub, "uid");
 
-        switch (decoded.role) {
-            case "admin":
-                const admin: Admin | null = user[0];
-                return admin;
-
-            case "student":
-                const student: Student | null = user[1];
-                return student;
-
-            default:
-                throw new ErrorManager("Invalid role or Not found", 401);
+        if (!user) {
+            throw new ErrorManager("User not found", 404);
         }
+
+        return user;
     }
 
 }

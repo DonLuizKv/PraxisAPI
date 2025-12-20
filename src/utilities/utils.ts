@@ -1,42 +1,25 @@
-// export const normalizeStudent = async (student: Student) => {
+import { randomBytes } from "node:crypto";
+import { Logger } from "../lib/Logger";
 
-//     const [documents, binnacles, scenary] = await Promise.all([
-//         GetAllDocuments(),
-//         GetAllBinnacles(),
-//         ScenaryRepo.Find(student.email),
-//     ]);
+const CHARS: string = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
-//     // const listDocuments = documents.filter(
-//     //     (document: Document) => document.student_id === student.uid
-//     // );
-
-//     // const listBinnacles = binnacles.filter(
-//     //     (binnacle: Binnacle) => binnacle.student_id === student.uid
-//     // );
-
-//     return {
-//         uid: student.uid,
-//         username: student.username,
-//         identification: student.identification,
-//         email: student.email,
-//         state: Boolean(student.state),
-//         profile_photo: student.avatar || "/",
-//         scenary: scenary?.student_id === student.uid,
-//         documents: {
-//             arl: [],
-//             coverLetter: [],
-//             cv: [],
-//         },
-//         binnacles: [],
-//     };
-// };
-
-export default function validateEnvironmentVariables(variables: string[]): void {
+export const validateEnvironmentVariables = (variables: string[]): void => {
     const missing = variables.filter((env) => !process.env[env]);
 
     if (missing.length > 0) {
-        console.error(`Missing required environment variables: ${missing.join(", ")}`);
+        Logger.error(`Missing required environment variables: ${missing.join(", ")}`);
     }
+}
+
+export const generateUID = (prefix: string, length = 6): string => {
+    const bytes = randomBytes(length);
+    let random: string = "";
+
+    for (let i = 0; i < length; i++) {
+        random += CHARS[bytes[i] % CHARS.length];
+    }
+
+    return `${prefix}-${random}`;
 }
 
 export const Time = {

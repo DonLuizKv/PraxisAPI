@@ -9,31 +9,17 @@ export class AdminService {
 
     // POST
     async createAdmin(admin: Admin): Promise<void> {
-
         await this.adminRepository.Create(admin);
     }
 
     //$ GET
     async getAdmins(): Promise<Admin[] | null> {
-
-        const admins = await this.adminRepository.FindAll();
-
-        if (!admins) {
-            return null;
-        }
-
-        return admins;
+        return this.adminRepository.FindAll() || null;
     }
 
     //$ GET by email or uid
     async getAdmin(value: string, typeSearch: "email" | "uid"): Promise<Admin | null> {
-        const admin = await this.adminRepository.Find(value, typeSearch);
-
-        if (!admin) {
-            return null;
-        }
-
-        return admin;
+        return this.adminRepository.Find(value, typeSearch) || null;
     }
 
     //! DELETE

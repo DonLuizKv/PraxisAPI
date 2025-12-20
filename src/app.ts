@@ -11,8 +11,21 @@ import { corsErrorHandler } from "./middlewares/cors.middleware";
 import { errorHandler } from "./middlewares/errorHandler.middleware";
 import { WebSockets } from "./dependences/WebSockets";
 import { notFound } from "./middlewares/notFound.middleware";
+import { validateEnvironmentVariables } from "./utilities/utils";
 
 dotenv.config();
+const requiredVariables: string[] = [
+    "PORT",
+    "ALLOWED_ORIGINS",
+    "JWT_SECRET",
+    "DB_HOST",
+    "DB_PORT",
+    "DB_USER",
+    "DB_PASS",
+    "DB_NAME"
+];
+
+validateEnvironmentVariables(requiredVariables);
 
 const PORT = process.env.PORT || 4000;
 const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS?.split(',') || [];

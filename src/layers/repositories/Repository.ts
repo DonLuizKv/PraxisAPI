@@ -1,11 +1,21 @@
 import { Database } from "../../dependences/Database";
 
+const AllowedTables = new Set([
+    "users",
+    "admins",
+    "students"
+]);
+
 export abstract class Repository<T extends object> {
 
     constructor(
         protected readonly table: string,
         readonly database = Database.getInstance()
-    ) { }
+    ) {
+        if (!AllowedTables.has(this.table)) {
+            throw new Error("Invalid table");
+        }
+    }
 
     async Find(value: string, typeSearch: "email" | "uid"): Promise<T | null> {
         const { rowCount, rows } = await this.database.query(
@@ -15,9 +25,10 @@ export abstract class Repository<T extends object> {
         return rowCount ? (rows[0] as T) : null;
     }
 
-    async FindAll(): Promise<T[]> {
+    async FindAll(limit?: number, offset?: number): Promise<T[]> {
         const { rows } = await this.database.query(
-            `SELECT * FROM ${this.table}`
+            `SELECT * FROM ${this.table} LIMIT $1 OFFSET $2`,
+            [limit, offset]
         );
         return rows as T[];
     }
