@@ -1,9 +1,6 @@
-import jwt, { JwtPayload } from 'jsonwebtoken';
-import dotenv from 'dotenv';
+import jwt from 'jsonwebtoken';
 import { Request, Response, NextFunction } from 'express';
 import { Token } from '../types/auth';
-
-dotenv.config();
 
 interface AuthenticatedRequest extends Request {
     user?: Token;

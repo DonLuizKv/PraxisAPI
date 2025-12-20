@@ -3,38 +3,29 @@ import cors from "cors";
 import dotenv from "dotenv"
 import http from "http";
 import cookieParser from "cookie-parser";
-import { SocketManager } from "./dependences/SocketManager";
 import adminRoutes from "./layers/routes/admin.routes";
-import scenaryRoutes from "./layers/routes/scenary.routes";
 import studentRoutes from "./layers/routes/student.routes";
-import filesRoutes from "./layers/routes/files.routes";
 import authRoutes from "./layers/routes/auth.routes";
-import path from "path";
-import { Database } from "./dependences/Database";
-import { GlobalLimiter } from "./middlewares/rateLimiter.middleware";
 import { Logger } from "./lib/Logger";
+import { corsErrorHandler } from "./middlewares/cors.middleware";
+import { errorHandler } from "./middlewares/errorHandler.middleware";
+import { WebSockets } from "./dependences/WebSockets";
+import { notFound } from "./middlewares/notFound.middleware";
 
 dotenv.config();
 
-// Environment Variables
 const PORT = process.env.PORT || 4000;
 const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS?.split(',') || [];
 
-// Server
 const app = express();
 const server = http.createServer(app);
 
-// Dependences
-const socketManager = SocketManager.getInstance(server);
-const DBConnection = Database.getInstance();
+const webSocketServer = WebSockets.getInstance(server);
+webSocketServer.initialize();
 
-DBConnection.initialize();
-socketManager.initialize();
-
-// CORS
 const corsOptions = {
     origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
-        if (!origin || ALLOWED_ORIGINS.includes(origin) || origin === "http://localhost:3000") {
+        if (!origin || ALLOWED_ORIGINS.includes(origin)) {
             callback(null, true);
         } else {
             callback(new Error("Not allowed by CORS"));
@@ -45,26 +36,22 @@ const corsOptions = {
     allowedHeaders: ["Content-Type", "Authorization"],
 };
 
-// Middlewares
 app.use(Logger.httpMiddleware());
 app.use(cors(corsOptions));
+app.use(corsErrorHandler);
 app.use(express.json());
-// app.use(GlobalLimiter);
 app.use(cookieParser());
 
-// Routes Use
 app.use("/admin", adminRoutes);
-// app.use("/scenary", scenaryRoutes);
 app.use("/student", studentRoutes);
-// app.use("/files", filesRoutes);
 app.use("/auth", authRoutes);
 
-// app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-
-// Welcome
 app.get("/", (req, res) => {
     res.status(200).send("Welcome to Praxis")
 })
+
+app.use(notFound);
+app.use(errorHandler);
 
 server.listen(PORT, () => {
     Logger.info(`Server running in ${PORT}`);

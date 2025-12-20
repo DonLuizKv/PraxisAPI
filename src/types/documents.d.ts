@@ -1,4 +1,4 @@
-type Document = {
+export type Document = {
     student_id:string;
     name: string;
     file_path: string;

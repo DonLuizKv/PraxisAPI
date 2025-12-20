@@ -1,20 +1,23 @@
-import jwt from 'jsonwebtoken';
-import { User, Student, Admin } from '../../types/user';
+import jwt from "jsonwebtoken";
+import { Student, Admin } from '../../types/user';
 import { Token } from '../../types/auth';
 import { StudentService } from './student.service';
 import { AdminService } from './admin.service';
-import { comparePassword } from '../../utilities/password';
+import { compare } from '../../utilities/password';
+import { ErrorManager } from '../../lib/ErrorManager';
 
 export class AuthService {
 
-    constructor(
-        private readonly SECRET: string = process.env.JWT_SECRET as string,
-        private readonly studentService: StudentService = new StudentService(),
-        private readonly adminService: AdminService = new AdminService()
-    ) { }
+    private readonly JWT_SECRET: string = process.env.JWT_SECRET as string;
+    private readonly adminService: AdminService;
+    private readonly studentService: StudentService;
 
-    public async login(credentials: User) {
-        const { email, password } = credentials;
+    constructor() {
+        this.adminService = new AdminService();
+        this.studentService = new StudentService();
+    }
+
+    public async login(email: string, password: string) {
 
         const [admin, student] = await Promise.all([
             this.adminService.getAdmin(email, "email"),
@@ -22,23 +25,23 @@ export class AuthService {
         ]);
 
         const user: Admin | Student | null = admin || student;
-
         if (!user) {
-            throw new Error("User not found");
+            throw new ErrorManager("User not found", 404);
         }
 
-        // const isPasswordValid: boolean = await comparePassword(password, user.password);
-
-        // if (!isPasswordValid) {
-        //     throw new Error("Invalid password");
-        // }
+        const isPasswordValid: boolean = await compare(password, user.password);
+        if (!isPasswordValid) {
+            throw new ErrorManager("Invalid password", 400);
+        }
 
         const payload: Token = {
             sub: user.uid,
             role: user.role,
         }
 
-        const token: string = jwt.sign(payload, this.SECRET, { expiresIn: "24h" });
+        const token: string = jwt.sign(payload, this.JWT_SECRET, {
+            expiresIn: "24h"
+        });
 
         return {
             token,
@@ -46,33 +49,36 @@ export class AuthService {
         };
     }
 
-    public async register(credentials: User) {}
+    public async register(email: string, password: string) {
+
+    }
 
     public async verifySession(token: string) {
+        if (!token) throw new ErrorManager("Token not provided", 401);
 
-        if (!token) throw new Error("Token not provided");
-
-        const decoded: Token = jwt.verify(token, this.SECRET) as Token;
+        const decoded: Token = jwt.verify(token, this.JWT_SECRET) as Token;
 
         if (decoded.role !== "admin" && decoded.role !== "student") {
-            throw new Error("Invalid role");
+            throw new ErrorManager("Invalid role", 401);
         }
+
+        const user = await Promise.all([
+            this.adminService.getAdmin(decoded.sub, "uid"),
+            this.studentService.getStudent(decoded.sub, "uid")
+        ]);
 
         switch (decoded.role) {
             case "admin":
-                const admin: Admin | null = await this.adminService.getAdmin(decoded.sub, "uid");
-                if (!admin) throw new Error("Admin not found");
+                const admin: Admin | null = user[0];
                 return admin;
 
             case "student":
-                const student: Student | null = await this.studentService.getStudent(decoded.sub, "uid");
-                if (!student) throw new Error("Student not found");
+                const student: Student | null = user[1];
                 return student;
 
             default:
-                throw new Error("Invalid role or Not found");
+                throw new ErrorManager("Invalid role or Not found", 401);
         }
-
     }
 
 }

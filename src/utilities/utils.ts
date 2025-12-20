@@ -31,22 +31,6 @@
 //     };
 // };
 
-export const ErrorResponse = (error: unknown, clauses: string | string[], message: string) => {
-    const err = error as Error;
-    const errorMessage = err?.message || "Unknown error";
-    const clauseList = Array.isArray(clauses) ? clauses : [clauses];
-    const statusCode = clauseList.some(clause => errorMessage.includes(clause)) ? 400 : 500;
-    return {
-        statusCode,
-        body: {
-            message,
-            error: errorMessage,
-        },
-    };
-};
-
-
-
 export default function validateEnvironmentVariables(variables: string[]): void {
     const missing = variables.filter((env) => !process.env[env]);
 

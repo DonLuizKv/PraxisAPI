@@ -1,8 +1,5 @@
-import dotenv from "dotenv";
 import { Pool, QueryResult } from "pg";
 import { Logger } from "../lib/Logger";
-
-dotenv.config();
 
 export class Database {
     private static instance: Database;

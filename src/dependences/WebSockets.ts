@@ -4,8 +4,8 @@ import { ActiveUsers } from "../types/SocketManagerTypes";
 import { Dispatcher } from "../lib/Dispatcher";
 import { Logger } from "../lib/Logger";
 
-export class SocketManager {
-    private static instance: SocketManager;
+export class WebSockets {
+    private static instance: WebSockets;
     protected io: Server;
     private ActiveUsers = new Map<string, Socket>();
 
@@ -18,28 +18,26 @@ export class SocketManager {
             // maxHttpBufferSize: 1e6, // 1 MB por defectoF
 
             cors: {
-                origin: process.env.ALLOWED_ORIGINS?.split(',') || [],
+                origin: process.env.ALLOWED_ORIGINS?.split(',') ?? [],
                 methods: ["GET", "POST"],
             },
         });
-
     }
 
     public static getInstance(io: HTTPServer) {
-        if (!SocketManager.instance) {
-            SocketManager.instance = new SocketManager(io);
+        if (!WebSockets.instance) {
+            WebSockets.instance = new WebSockets(io);
         }
-        return SocketManager.instance;
+        return WebSockets.instance;
     }
 
-    // public getActiveUsers(): ActiveUsers[] {
-    //     return Array.from(this.ActiveUsers.entries()).map(([userUID, socketUID]) => ({ userUID, socketUID }))
-    // }
+    public getActiveUsers(): ActiveUsers[] {
+        return Array.from(this.ActiveUsers.entries()).map(([userUID, socketUID]) => ({ userUID, socketUID }))
+    }
 
     initialize() {
         Logger.socket("WebSocket Server is running", { prefix: "\n" });
 
-        // Socket
         this.io.on('connection', (socket: Socket) => {
             Logger.socket(`Client connected: ${socket.id}`);
             this.ActiveUsers.set(socket.id, socket);
@@ -50,6 +48,11 @@ export class SocketManager {
             socket.on('disconnect', () => {
                 this.ActiveUsers.delete(socket.id);
                 Logger.socket(`User disconnected: ${socket.id}`);
+            });
+
+            socket.on("error", (data: Error) => {
+                console.log(data);
+                socket.emit("error", data);
             });
         });
     }

@@ -48,7 +48,7 @@ export class Dispatcher {
     //     this.socket.on("chat", () => { }); // send package to chat room (all users)
 
     private UserEvents() {
-        this.socket.on("user:login", (data: Package[]) => {
+        this.socket.on("user:login", (data: { message: string }) => {
             console.log(data);
             this.socket.emit("user:login:success", data);
         });
