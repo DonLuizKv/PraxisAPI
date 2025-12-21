@@ -1,5 +1,5 @@
 import { Student } from "../../types/user";
-import { hashPassword } from "../../utilities/password";
+import { Hash } from "../../utilities/password";
 import { StudentRepository } from "../repositories/student.repository";
 
 export class StudentService {
@@ -8,7 +8,7 @@ export class StudentService {
     ) { }
 
     async createStudent(student: Student): Promise<void> {
-        const password = await hashPassword(student.password);
+        const password = await Hash(student.password);
 
         const newStudent = {
             ...student,
