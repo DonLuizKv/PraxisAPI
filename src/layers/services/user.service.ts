@@ -27,7 +27,7 @@ export class UserService {
     }
 
     async changeUserState(id: string, state: boolean): Promise<boolean> {
-        return this.userRepository.Update(id, { state });
+        return this.userRepository.Update(id, { active: state });
     }
 
     async changeUserRole(id: string, role: "admin" | "student"): Promise<boolean> {

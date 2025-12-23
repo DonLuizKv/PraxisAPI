@@ -1,11 +1,11 @@
 import { Arl, Binnacle, CoverLetter, CV, Scenary } from "./documents";
 
 export type User = {
-    uid?: string;
+    uid: string;
     username: string;
     email: string;
     password: string;
-    state: boolean;
+    active: boolean;
     role: "admin" | "student";
 }
 

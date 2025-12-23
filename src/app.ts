@@ -1,6 +1,6 @@
+import "dotenv/config";
 import express from "express";
 import cors from "cors";
-import dotenv from "dotenv"
 import http from "http";
 import cookieParser from "cookie-parser";
 import adminRoutes from "./layers/routes/admin.routes";
@@ -12,8 +12,8 @@ import { errorHandler } from "./middlewares/errorHandler.middleware";
 import { WebSockets } from "./dependences/WebSockets";
 import { notFound } from "./middlewares/notFound.middleware";
 import { validateEnvironmentVariables } from "./utilities/utils";
+import { Database } from "./dependences/Database";
 
-dotenv.config();
 const requiredVariables: string[] = [
     "PORT",
     "ALLOWED_ORIGINS",
@@ -21,20 +21,23 @@ const requiredVariables: string[] = [
     "DB_HOST",
     "DB_PORT",
     "DB_USER",
-    "DB_PASS",
+    "DB_PASSWORD",
     "DB_NAME"
 ];
 
 validateEnvironmentVariables(requiredVariables);
 
-const PORT = process.env.PORT || 4000;
-const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS?.split(',') || [];
+const PORT: number = Number(process.env.PORT);
+const ALLOWED_ORIGINS: string[] = process.env.ALLOWED_ORIGINS?.split(',') || [];
 
 const app = express();
 const server = http.createServer(app);
 
 const webSocketServer = WebSockets.getInstance(server);
 webSocketServer.initialize();
+
+const database = Database.getInstance();
+database.initialize();
 
 const corsOptions = {
     origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
@@ -55,8 +58,6 @@ app.use(corsErrorHandler);
 app.use(express.json());
 app.use(cookieParser());
 
-app.use("/admin", adminRoutes);
-app.use("/student", studentRoutes);
 app.use("/auth", authRoutes);
 
 app.get("/", (req, res) => {

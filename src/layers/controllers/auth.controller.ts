@@ -6,7 +6,6 @@ import { ErrorManager } from '../../lib/ErrorManager';
 const service = new AuthService();
 
 export const Login = async (req: Request, res: Response): Promise<any> => {
-
     const { email, password } = req.body;
     const { token, role } = await service.login(email, password);
 
@@ -37,7 +36,19 @@ export const VerifySession = async (req: Request, res: Response): Promise<any> =
 };
 
 export const Logout = async (req: Request, res: Response): Promise<any> => {
-    res.clearCookie("session_token");
-
+    res.clearCookie("session_token", {
+        secure: true,
+        sameSite: "none",
+        httpOnly: true,
+        maxAge: Time.day(1),
+        path: "/"
+    });
     res.status(200).json("Session successfully closed");
-}; 
+};
+
+export const ForgotPassword = async (req: Request, res: Response): Promise<any> => {
+    const { email } = req.body;
+    // await service.forgotPassword(email);
+
+    res.status(200).json("Password reset email sent successfully");
+};

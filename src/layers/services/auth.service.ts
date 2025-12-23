@@ -17,13 +17,14 @@ export class AuthService {
 
     public async login(email: string, password: string) {
 
-        const user = await this.userRepository.Find(email, "email");
+        const user: User | null = await this.userRepository.Find(email, "email");
 
         if (!user) {
             throw new ErrorManager("User not found", 404);
         }
 
-        const isPasswordValid: boolean = await Compare(password, user.password);
+        const isPasswordValid: boolean = await Compare(user.password, password);
+
         if (!isPasswordValid) {
             throw new ErrorManager("Invalid password", 400);
         }
@@ -35,7 +36,7 @@ export class AuthService {
 
         const token: string = jwt.sign(payload, this.JWT_SECRET, {
             expiresIn: "24h"
-        });
+        } as jwt.SignOptions);
 
         return {
             token,
@@ -53,13 +54,11 @@ export class AuthService {
         const uid: string = generateUID("usr");
         const hashedPassword: string = await Hash(password);
 
-        const newuser: User = {
+        const newuser = {
             uid,
             username,
             email,
             password: hashedPassword,
-            state: true,
-            role: "student"
         }
 
         await this.userRepository.Create(newuser);
@@ -81,7 +80,11 @@ export class AuthService {
             throw new ErrorManager("User not found", 404);
         }
 
-        return user;
+        return {
+            username: user.username,
+            email: user.email,
+            active: user.active,
+            role: user.role
+        };
     }
-
 }
