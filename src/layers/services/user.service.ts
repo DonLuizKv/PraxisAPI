@@ -1,4 +1,7 @@
+import { ErrorManager } from "../../lib/ErrorManager";
 import { User } from "../../types/user";
+import { Hash } from "../../utilities/password";
+import { generateUID } from "../../utilities/utils";
 import { UserRepository } from "../repositories/user.repository";
 
 export class UserService {
@@ -6,8 +9,28 @@ export class UserService {
         private userRepository: UserRepository = new UserRepository()
     ) {}
 
-    async createUser(user: User): Promise<void> {
-        await this.userRepository.Create(user);
+    async createUser(data: Omit<User, "uid">): Promise<void> {
+
+        const existUser = await this.userRepository.Exist(data.email, "email");
+
+        if (existUser) {
+            throw new ErrorManager("User already exists", 400);
+        }
+
+        const uid = generateUID("usr");
+        const hashedPassword = await Hash(data.password);
+
+        const payload: User = {
+            uid,
+            username: data.username,
+            email: data.email,
+            password: hashedPassword,
+            role: data.role,
+            active: data.active
+        }
+
+        await this.userRepository.Create(payload);
+
     }
 
     async getUser(uid: string, typeSearch: "email" | "uid"): Promise<User | null> {
@@ -15,22 +38,22 @@ export class UserService {
     }
 
     async getUsers(limit?: number, offset?: number): Promise<User[] | null> {
-        return this.userRepository.FindAll(limit, offset) || null;
+        return this.userRepository.FindAll(limit, offset);
     }
 
     async deleteUser(id: string): Promise<boolean> {
-        return this.userRepository.Delete(id);
+        return true;
     }
 
     async updateUser(id: string, updatedUser: User): Promise<boolean> {
-        return this.userRepository.Update(id, updatedUser);
+        return true;
     }
 
     async changeUserState(id: string, state: boolean): Promise<boolean> {
-        return this.userRepository.Update(id, { active: state });
+        return true;
     }
 
     async changeUserRole(id: string, role: "admin" | "student"): Promise<boolean> {
-        return this.userRepository.Update(id, { role });
+        return true;
     }
 }

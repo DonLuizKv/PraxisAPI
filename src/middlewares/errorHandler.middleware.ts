@@ -5,8 +5,6 @@ import { Logger } from "../lib/Logger";
 export const errorHandler: ErrorRequestHandler = (err: ErrorManager, req: Request, res: Response, next: NextFunction) => {
     const { statusCode, status, message } = err;
 
-    Logger.error(err);
-
     res.status(statusCode).json({
         status,
         message: message || "Internal server error",

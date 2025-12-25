@@ -33,6 +33,18 @@ export abstract class Repository<T extends object> {
         return rows as T[];
     }
 
+    async Exist(value: string, typeSearch: "email" | "uid"): Promise<boolean> {
+        const { rows } = await this.database.query(
+            `SELECT EXISTS (
+                SELECT 1 
+                FROM ${this.table} 
+                WHERE ${typeSearch} = $1 
+            )`,
+            [value]
+        );
+        return rows[0].exists;
+    }
+
     async Create(data: Partial<T>): Promise<void> {
         const keys = Object.keys(data);
         const values = Object.values(data);

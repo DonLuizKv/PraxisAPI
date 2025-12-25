@@ -5,6 +5,7 @@ import http from "http";
 import cookieParser from "cookie-parser";
 import adminRoutes from "./layers/routes/admin.routes";
 import studentRoutes from "./layers/routes/student.routes";
+import userRoutes from "./layers/routes/user.routes";
 import authRoutes from "./layers/routes/auth.routes";
 import { Logger } from "./lib/Logger";
 import { corsErrorHandler } from "./middlewares/cors.middleware";
@@ -59,6 +60,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use("/auth", authRoutes);
+app.use("/users", userRoutes);
 
 app.get("/", (req, res) => {
     res.status(200).send("Welcome to Praxis")
