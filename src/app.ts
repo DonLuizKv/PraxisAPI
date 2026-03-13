@@ -1,74 +1,41 @@
-import "dotenv/config";
-import express from "express";
-import cors from "cors";
 import http from "http";
-import cookieParser from "cookie-parser";
-import adminRoutes from "./layers/routes/admin.routes";
-import studentRoutes from "./layers/routes/student.routes";
-import userRoutes from "./layers/routes/user.routes";
-import authRoutes from "./layers/routes/auth.routes";
-import { Logger } from "./lib/Logger";
-import { corsErrorHandler } from "./middlewares/cors.middleware";
-import { errorHandler } from "./middlewares/errorHandler.middleware";
-import { WebSockets } from "./dependences/WebSockets";
-import { notFound } from "./middlewares/notFound.middleware";
-import { validateEnvironmentVariables } from "./utilities/utils";
-import { Database } from "./dependences/Database";
+import { ExpressServer } from "./infra/express/express.server";
+import { Database } from "./infra/database/Database";
+import { WebSockets } from "./infra/websockets/webSockets.server";
+import { Logger } from "./infra/lib/Logger";
 
-const requiredVariables: string[] = [
-    "PORT",
-    "ALLOWED_ORIGINS",
-    "JWT_SECRET",
-    "DB_HOST",
-    "DB_PORT",
-    "DB_USER",
-    "DB_PASSWORD",
-    "DB_NAME"
-];
+interface AppConfig {
+    port: number;
+    origins: string[];
+}
 
-validateEnvironmentVariables(requiredVariables);
+export class App {
 
-const PORT: number = Number(process.env.PORT);
-const ALLOWED_ORIGINS: string[] = process.env.ALLOWED_ORIGINS?.split(',') || [];
+    private expressServer: ExpressServer;
+    private httpServer: http.Server;
+    private database: Database;
+    private sockets: WebSockets;
 
-const app = express();
-const server = http.createServer(app);
+    constructor(private config: AppConfig) {
+        this.expressServer = new ExpressServer({
+            origins: this.config.origins
+        });
 
-const webSocketServer = WebSockets.getInstance(server);
-webSocketServer.initialize();
+        this.httpServer = http.createServer();
 
-const database = Database.getInstance();
-database.initialize();
+        this.database = Database.getInstance();
+        this.sockets = WebSockets.getInstance(this.httpServer);
+    }
 
-const corsOptions = {
-    origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
-        if (!origin || ALLOWED_ORIGINS.includes(origin)) {
-            callback(null, true);
-        } else {
-            callback(new Error("Not allowed by CORS"));
-        }
-    },
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-};
+    public async Init() {
 
-app.use(Logger.httpMiddleware());
-app.use(cors(corsOptions));
-app.use(corsErrorHandler);
-app.use(express.json());
-app.use(cookieParser());
+        // this.expressServer.Setup();
 
-app.use("/auth", authRoutes);
-app.use("/users", userRoutes);
+        // this.database.initialize();
+        // this.sockets.initialize();
 
-app.get("/", (req, res) => {
-    res.status(200).send("Welcome to Praxis")
-})
-
-app.use(notFound);
-app.use(errorHandler);
-
-server.listen(PORT, () => {
-    Logger.info(`Server running in ${PORT}`);
-})
+        this.httpServer.listen(this.config.port, () => {
+            Logger.info(`Server running in ${this.config.port}`);
+        });
+    }
+}

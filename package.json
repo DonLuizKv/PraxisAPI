@@ -1,18 +1,18 @@
 {
   "name": "praxis_backend",
   "version": "1.0.0",
-  "main": "app.ts",
+  "main": "index.ts",
   "scripts": {
-    "dev": "nodemon ./src/app.ts",
+    "dev": "nodemon ./src/index.ts",
+    "cli": "ts-node ./cli/index.ts",
     "build": "tsc",
-    "start": "node dist/app.js"
+    "start": "node dist/index.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "@types/jsonwebtoken": "^9.0.10",
     "argon2": "^0.44.0",
     "cloudinary": "^2.6.0",
     "cookie-parser": "^1.4.7",
@@ -24,7 +24,6 @@
     "jsonwebtoken": "^9.0.3",
     "multer": "^1.4.5-lts.2",
     "node-cron": "^4.0.6",
-    "nodemon": "^3.1.9",
     "pg": "^8.16.3",
     "socket.io": "^4.8.1"
   },
@@ -32,9 +31,12 @@
     "@types/cookie-parser": "^1.4.10",
     "@types/cors": "^2.8.18",
     "@types/express": "^5.0.2",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/multer": "^1.4.12",
     "@types/node": "^22.15.23",
     "@types/pg": "^8.15.6",
+    "commander": "^14.0.3",
+    "nodemon": "^3.1.14",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3"
   }
