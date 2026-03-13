@@ -1,17 +1,4 @@
 import { randomBytes } from "node:crypto";
-import { Logger } from "../lib/Logger";
-
-
-export const validateEnvironmentVariables = (variables: string[]): void => {
-    const missing = variables.filter((env) => !process.env[env]);
-
-    if (missing.length > 0) {
-        Logger.error(`Missing required environment variables: ${missing.join(", ")}`, {
-            prefix: "\n"
-        });
-        process.exit(1);
-    }
-}
 
 export const generateUID = (prefix: string, length = 6): string => {
     const CHARS: string = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
