@@ -1,5 +1,6 @@
 import { Pool, QueryResult } from "pg";
 import { Logger } from "../lib/Logger";
+import { Errors } from "../lib/ErrorManager";
 
 export class Database {
     private static instance: Database;
@@ -30,19 +31,7 @@ export class Database {
     public async query(sql: string, params: any[] | any = []): Promise<QueryResult> {
         try {
             if (!sql || typeof sql !== "string") {
-                Logger.error("SQL query is required and must be a string", {
-                    styles: {
-                        msg: { color: "red" }
-                    }
-                });
-            }
-
-            if (sql.includes("--") || /;\s*drop\s+/i.test(sql)) {
-                Logger.error("Potentially dangerous SQL detected", {
-                    styles: {
-                        msg: { color: "red" }
-                    }
-                });
+                throw Errors.BAD_REQUEST("SQL query is required and must be a string");
             }
 
             const { command, rowCount, oid, rows, fields } = await this.pool.query(sql, params)
@@ -56,8 +45,7 @@ export class Database {
             }
 
         } catch (error) {
-            Logger.error(error as Error);
-            throw error;
+            throw Errors.INTERNAL_SERVER_ERROR("Error executing query");
         }
     }
 
@@ -88,7 +76,7 @@ export class Database {
             await this.pool.end();
             Logger.db("Database connections closed");
         } catch (error) {
-            Logger.error(error as Error);
+            throw Errors.INTERNAL_SERVER_ERROR("Error closing database connections");
         }
     }
 
@@ -105,16 +93,13 @@ export class Database {
     //     this.pool.on("connect", () => Logger.database("New client connected to pool"));
     // }
 
-    // ===== START METHOD ===== //
     async initialize(): Promise<void> {
         try {
             const client = await this.pool.connect();
             Logger.db(`Connected to the ${process.env.DB_NAME} database`);
             client.release();
         } catch (error) {
-            Logger.error(error as Error);
-            this.close();
-            process.exit(1);
+            throw Errors.INTERNAL_SERVER_ERROR("Error connecting to database");
         }
     }
 

@@ -9,9 +9,9 @@
     "start": "node dist/index.js"
   },
   "keywords": [],
-  "author": "",
+  "author": "DonLuizKV",
   "license": "ISC",
-  "description": "",
+  "description": "Official Backend for Praxis.",
   "dependencies": {
     "argon2": "^0.44.0",
     "cloudinary": "^2.6.0",

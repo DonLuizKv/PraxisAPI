@@ -13,7 +13,7 @@ export const GlobalLimiter = rateLimit({
 export const AuthLimiter = rateLimit({
     windowMs: Time.minute(10),
     max: 10,
-    message: { error: "Too many authentications, please try again in 10 minutes." },
+    message: { error: "Too many authentications, please try again later." },
     standardHeaders: true,
     legacyHeaders: false,
     skip: (req) => req.path === "/auth/verify",

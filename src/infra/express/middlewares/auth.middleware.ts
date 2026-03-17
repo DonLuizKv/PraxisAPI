@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import { Request, Response, NextFunction } from 'express';
 import { Token } from '../../types/auth';
-import { ErrorManager } from '../../lib/ErrorManager';
+import { Errors } from '../../lib/ErrorManager';
 
 interface AuthenticatedRequest extends Request {
     user?: Token;
@@ -9,7 +9,7 @@ interface AuthenticatedRequest extends Request {
 
 export const TokenVerification = (req: AuthenticatedRequest, res: Response, next: NextFunction): any => {
     const token = req.cookies?.session_token;
-    if (!token) throw new ErrorManager("Unauthorized, you need a valid Token.", 401);
+    if (!token) throw Errors.UNAUTHORIZED("Authentication required, please login.");
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as Token;
     req.user = decoded;
@@ -19,11 +19,11 @@ export const TokenVerification = (req: AuthenticatedRequest, res: Response, next
 export const RoleVerification = (...roles: string[]) => {
     return (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
         if (!req.user) {
-            throw new ErrorManager("Authentication required, please login.", 401);
+            throw Errors.UNAUTHORIZED("Authentication required, please login.");
         }
 
         if (!roles.includes(req.user.role)) {
-            throw new ErrorManager("Unauthorized, you don't have permission to access this resource.", 403);
+            throw Errors.FORBIDDEN("Unauthorized, you don't have permission to access this resource.");
         }
 
         next();

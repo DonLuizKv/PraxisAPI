@@ -1,12 +1,23 @@
 import { ErrorRequestHandler, NextFunction, Request, Response } from "express";
 import { ErrorManager } from "../../lib/ErrorManager";
+import { Logger } from "../../lib/Logger";
 
 export const errorHandler: ErrorRequestHandler = (err: ErrorManager, req: Request, res: Response, next: NextFunction) => {
-    const { statusCode, status, message } = err;
+    let error = err;
 
-    res.status(statusCode).json({
-        statusCode,
-        status,
-        message: message || "Internal server error",
-    });
+    // 🔧 Si no es tu error, conviértelo
+    if (!(err instanceof ErrorManager)) {
+        error = new ErrorManager("Internal server error", 500, false);
+    }
+
+    const { statusCode, message, isOperational } = error;
+
+    // 🧠 Logueo inteligente
+    if (!isOperational) {
+        Logger.error(`UNEXPECTED ERROR: ${err}`);
+    }
+
+    Logger.error(err);
+
+    res.status(statusCode).json({ message });
 };

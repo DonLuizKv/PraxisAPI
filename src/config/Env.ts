@@ -1,4 +1,5 @@
 import { config } from "dotenv";
+import { Errors } from "../infra/lib/ErrorManager";
 
 config();
 
@@ -7,11 +8,6 @@ export const Env = {
         PORT: number("PORT", 4000),
         NODE_ENV: process.env.NODE_ENV ?? "dev",
         ORIGINS: list("ORIGINS"),
-    },
-
-    RateLimiter: {
-        GLOBAL: number("GLOBAL_RATE_LIMITER", 10),
-        AUTH: number("AUTH_RATE_LIMITER", 5),
     },
 
     DB: {
@@ -46,7 +42,7 @@ export const Env = {
 function required(name: string): string {
     const value = process.env[name];
     if (!value) {
-        throw new Error(`Missing environment variable: ${name}`);
+        throw Errors.INTERNAL_SERVER_ERROR(`Missing environment variable: ${name}`);
     }
     return value;
 }
@@ -55,14 +51,14 @@ function number(name: string, defaultValue?: number): number {
     const value = process.env[name];
     if (!value) {
         if (defaultValue === undefined) {
-            throw new Error(`Missing environment variable: ${name}`);
+            throw Errors.INTERNAL_SERVER_ERROR(`Missing environment variable: ${name}`);
         }
         return defaultValue;
     }
 
     const parsed = Number(value);
     if (Number.isNaN(parsed)) {
-        throw new Error(`Environment variable ${name} must be a number`);
+        throw Errors.INTERNAL_SERVER_ERROR(`Environment variable ${name} must be a number`);
     }
 
     return parsed;

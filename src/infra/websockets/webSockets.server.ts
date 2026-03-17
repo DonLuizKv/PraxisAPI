@@ -51,7 +51,7 @@ export class WebSockets {
             });
 
             socket.on("error", (data: Error) => {
-                console.log(data);
+                Logger.error(data);
                 socket.emit("error", data);
             });
         });
