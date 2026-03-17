@@ -18,10 +18,14 @@ export function makeModule(name: string) {
         `import { ${className}Repository } from "./${name}.repository";
 import { ${className}Service } from "./${name}.service";
 import { ${className}Controller } from "./${name}.controller";
-import { create${className}Routes } from "./${name}.routes";\n
+import { create${className}Routes } from "./${name}.routes";
+import { Database } from "../../infra/database/Database";\n
+interface ${className}Dependences {
+    db: Database;
+}
 export class ${className}Module {
-    static create() {
-        const repository = new ${className}Repository();
+    static create(private dependences: ${className}Dependences) {
+        const repository = new ${className}Repository(dependences.db);
         const service = new ${className}Service(repository);
         const controller = new ${className}Controller(service);
 
@@ -62,10 +66,11 @@ export class ${className}Service {
 
     fs.writeFileSync(
         path.join(basePath, `${name}.repository.ts`),
-        `import { Repository } from "../../infra/database/Repository";\n
+        `import { Repository } from "../../infra/database/Repository";
+import { Database } from "../../infra/database/Database";\n
 export class ${className}Repository extends Repository<unknown> {
-    constructor() {
-        super("");
+    constructor(private db: Database) {
+        super("", db);
     }
 }\n`
     );

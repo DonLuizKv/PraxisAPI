@@ -6,9 +6,11 @@ import { Logger } from "../lib/Logger";
 import { errorHandler } from "./middlewares/errorHandler.middleware";
 import { corsErrorHandler } from "./middlewares/cors.middleware";
 import { Errors } from "../lib/ErrorManager";
+import { Database } from "../database/Database";
 
 interface ExpressServerConfig {
     origins: string[];
+    db: Database;
 }
 
 export class ExpressServer {
@@ -18,7 +20,7 @@ export class ExpressServer {
         this.app = Express();
     }
 
-    private SetupMiddlewares() {
+    private setupMiddlewares() {
         const corsOptions = {
             origin: (
                 origin: string | undefined,
@@ -44,32 +46,36 @@ export class ExpressServer {
         this.app.use(cors(corsOptions));
     }
 
-    private SetUpErrorMiddlewares() {
+    private setUpErrorMiddlewares() {
         this.app.use(corsErrorHandler);
         this.app.use(errorHandler);
     }
 
-    private SetupRoutes() {
-        this.app.use("/api/v1/auth",);
-        this.app.use("/api/v1/users",);
-        this.app.use("/api/v1/students",);
-        this.app.use("/api/v1/admins",);
+    private setupRoutes() {
+        this.app.use("/api/v1/auth",(req, res)=>{});
+        this.app.use("/api/v1/users",(req, res)=>{});
+        this.app.use("/api/v1/students",(req, res)=>{});
+        this.app.use("/api/v1/admins",(req, res)=>{});
 
-        this.app.use("/api/v1/documents",);
-        this.app.use("/api/v1/scenarys",);
-        this.app.use("/api/v1/binnacles",);
-        this.app.use("/api/v1/cv",);
+        this.app.use("/api/v1/documents",(req, res)=>{});
+        this.app.use("/api/v1/scenarys",(req, res)=>{});
+        this.app.use("/api/v1/binnacles",(req, res)=>{});
+        this.app.use("/api/v1/cv",(req, res)=>{});
 
-        this.app.use("/api/v1/uploads",);
+        this.app.use("/api/v1/uploads",(req, res)=>{});
 
         this.app.get("/api/v1/", (req: Request, res: Response) => {
             res.sendFile(path.join(__dirname, "../../../public/index.html"));
         });
     }
 
-    public async Setup() {
-        this.SetupMiddlewares();
-        this.SetupRoutes();
-        this.SetUpErrorMiddlewares();
+    public getApp() {
+        return this.app;
+    }
+
+    public async setup() {
+        this.setupMiddlewares();
+        this.setupRoutes();
+        this.setUpErrorMiddlewares();
     }
 }
