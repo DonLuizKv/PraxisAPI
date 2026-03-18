@@ -77,7 +77,8 @@ export class ${className}Repository extends Repository<unknown> {
 
     fs.writeFileSync(
         path.join(basePath, `${name}.controller.ts`),
-        `import { ${className}Service } from "./${name}.service";\n
+        `import { Request, Response } from "express";
+import { ${className}Service } from "./${name}.service";\n
 export class ${className}Controller {
     constructor(
         private service: ${className}Service

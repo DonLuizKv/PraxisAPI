@@ -1,7 +1,7 @@
 import { AuthService } from "./auth.service";
 import { AuthController } from "./auth.controller";
 import { createAuthRoutes } from "./auth.routes";
-import { UserRepository } from "../Users/user.repository";
+import { UsersRepository } from "../Users/users.repository";
 import { Database } from "../../infra/database/Database";
 
 interface AuthModuleDependences {
@@ -10,7 +10,7 @@ interface AuthModuleDependences {
 
 export class AuthModule {
     static create(dependences: AuthModuleDependences) {
-        const userRepo = new UserRepository(dependences.db);
+        const userRepo = new UsersRepository(dependences.db);
         const service = new AuthService(userRepo);
         const controller = new AuthController(service);
 
