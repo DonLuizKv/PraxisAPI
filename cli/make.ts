@@ -24,7 +24,7 @@ interface ${className}Dependences {
     db: Database;
 }
 export class ${className}Module {
-    static create(private dependences: ${className}Dependences) {
+    static create(dependences: ${className}Dependences) {
         const repository = new ${className}Repository(dependences.db);
         const service = new ${className}Service(repository);
         const controller = new ${className}Controller(service);
