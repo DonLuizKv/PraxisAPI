@@ -1,8 +1,8 @@
-import { AuthRepository } from "./auth.repository";
+import { UserRepository } from "../Users/user.repository";
 
 export class AuthService {
     constructor(
-        private repository: AuthRepository
+        private UserRepository: UserRepository
     ) {}
 }
 

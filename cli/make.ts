@@ -44,7 +44,7 @@ export function create${className}Routes(controller: ${className}Controller) {
     const router = Router();
 
     router.get("/", controller.getAll);
-    router.get("/:id", controller.getById);
+    router.get("/:id",  controller.getById);
     router.post("/", controller.create);
     router.put("/:id", controller.update);
     router.delete("/:id", controller.delete);
@@ -82,6 +82,26 @@ export class ${className}Controller {
     constructor(
         private service: ${className}Service
     ) {}
+
+    async getAll(req: Request, res: Response) {
+        
+    }
+
+    async getById(req: Request, res: Response) {
+        
+    }
+
+    async create(req: Request, res: Response) {
+        
+    }
+
+    async update(req: Request, res: Response) {
+        
+    }
+
+    async delete(req: Request, res: Response) {
+        
+    }
 }\n`
     );
 
