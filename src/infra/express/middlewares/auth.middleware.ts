@@ -1,17 +1,18 @@
-import jwt from 'jsonwebtoken';
 import { Request, Response, NextFunction } from 'express';
 import { Token } from '../../types/auth';
 import { Errors } from '../../lib/ErrorManager';
+import { verifyToken } from '../../jwt/jwt.service';
+import { Env } from '../../../config/Env';
 
 interface AuthenticatedRequest extends Request {
     user?: Token;
 }
 
-export const TokenVerification = (req: AuthenticatedRequest, res: Response, next: NextFunction): any => {
+export const TokenVerification = (req: AuthenticatedRequest, res: Response, next: NextFunction): void => {
     const token = req.cookies?.session_token;
     if (!token) throw Errors.UNAUTHORIZED("Authentication required, please login.");
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as Token;
+    const decoded = verifyToken(token, Env.JWT.ACCESS_SECRET);
     req.user = decoded;
     next();
 };

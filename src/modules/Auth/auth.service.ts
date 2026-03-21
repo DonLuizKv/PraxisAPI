@@ -65,11 +65,11 @@ export class AuthService {
         await this.UserRepository.CreateUser(newUser);
     }
 
-    async verify(token: string): Promise<{ username: string; email: string; active: boolean; role: string }> {
-        if (!token) throw Errors.UNAUTHORIZED("Token not provided");
+    async verify(token: string | undefined): Promise<{ username: string; email: string; active: boolean; role: string }> {
+        if (!token || typeof token === "undefined") throw Errors.UNAUTHORIZED("Token not provided");
 
         const decoded = verifyToken(token, Env.JWT.ACCESS_SECRET);
-        
+
         if (decoded.role !== "admin" && decoded.role !== "student") {
             throw Errors.UNAUTHORIZED("Invalid role");
         }

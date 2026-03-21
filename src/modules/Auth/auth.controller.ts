@@ -32,11 +32,15 @@ export class AuthController {
     }
 
     async Verify(req: Request, res: Response): Promise<void> {
-        const token = req.cookies?.session_token;
-        if (!token) throw Errors.UNAUTHORIZED("Token cookie required");
+        const accessToken = req.headers.authorization?.split(' ')[1];
+        const refreshToken = req.cookies?.refresh_token;
 
-        const user = await this.service.verify(token);
-        res.status(200).json(user);
+        if (!accessToken && !refreshToken) {
+            throw Errors.UNAUTHORIZED("No session found");
+        }
+
+        const userData = await this.service.verify(accessToken);
+        res.status(200).json(userData);
     }
 
     async Refresh(req: Request, res: Response): Promise<void> {
