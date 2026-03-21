@@ -1,4 +1,4 @@
-export type Tables = "users" | "admins" | "students" | "documents" | "scenarys" | "binnacles" | "cv" | "uploads";
+export type Tables = "users" | "admins" | "students" | "documents" | "scenarys" | "binnacles" | "cv" | "uploads" | "tokens";
 
 export const TableNames = {
     Users: "users",
@@ -9,5 +9,6 @@ export const TableNames = {
     Binnacles: "binnacles",
     CV: "cv",
     Uploads: "uploads",
+    Tokens: "tokens",
 } as const;
 

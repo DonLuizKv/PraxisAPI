@@ -19,8 +19,10 @@ export const Env = {
     },
 
     JWT: {
-        SECRET: required("JWT_SECRET"),
-        EXPIRES_IN: required("JWT_EXPIRES_IN")!,
+        ACCESS_SECRET: required("JWT_ACCESS_SECRET"),
+        REFRESH_SECRET: required("JWT_REFRESH_SECRET"),
+        ACCESS_EXPIRES_IN: number("JWT_ACCESS_EXPIRES_IN", 60 * 60 * 24 * 7),
+        REFRESH_EXPIRES_IN: number("JWT_REFRESH_EXPIRES_IN", 60 * 60 * 24 * 30),
     },
 
     Cloudinary: {

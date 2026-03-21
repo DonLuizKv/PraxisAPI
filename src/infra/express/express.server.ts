@@ -7,6 +7,8 @@ import { errorHandler } from "./middlewares/errorHandler.middleware";
 import { corsErrorHandler } from "./middlewares/cors.middleware";
 import { Errors } from "../lib/ErrorManager";
 import { Database } from "../database/Database";
+import { AuthModule } from "../../modules/Auth/auth.module";
+import { UsersModule } from "../../modules/Users/users.module";
 
 interface ExpressServerConfig {
     origins: string[];
@@ -52,8 +54,8 @@ export class ExpressServer {
     }
 
     private setupRoutes() {
-        this.app.use("/api/v1/auth",(req, res)=>{});
-        this.app.use("/api/v1/users",(req, res)=>{});
+        this.app.use("/api/v1/auth", AuthModule.create({ db: this.config.db }));
+        this.app.use("/api/v1/users", UsersModule.create({ db: this.config.db }));
         this.app.use("/api/v1/students",(req, res)=>{});
         this.app.use("/api/v1/admins",(req, res)=>{});
 

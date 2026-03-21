@@ -15,16 +15,18 @@ export function makeModule(name: string) {
 
     fs.writeFileSync(
         path.join(basePath, `${name}.module.ts`),
-        `import { ${className}Repository } from "./${name}.repository";
+        `import { Router } from "express";
+import { ${className}Repository } from "./${name}.repository";
 import { ${className}Service } from "./${name}.service";
 import { ${className}Controller } from "./${name}.controller";
 import { create${className}Routes } from "./${name}.routes";
 import { Database } from "../../infra/database/Database";\n
+
 interface ${className}Dependences {
     db: Database;
 }
 export class ${className}Module {
-    static create(dependences: ${className}Dependences) {
+    static create(dependences: ${className}Dependences): Router {
         const repository = new ${className}Repository(dependences.db);
         const service = new ${className}Service(repository);
         const controller = new ${className}Controller(service);
@@ -39,15 +41,17 @@ export class ${className}Module {
     fs.writeFileSync(
         path.join(basePath, `${name}.routes.ts`),
         `import { Router } from "express";
+import { asyncHandler } from "../../utilities/utils";
 import { ${className}Controller } from "./${name}.controller";\n
 export function create${className}Routes(controller: ${className}Controller) {
     const router = Router();
 
-    router.get("/", controller.getAll);
-    router.get("/:id",  controller.getById);
-    router.post("/", controller.create);
-    router.put("/:id", controller.update);
-    router.delete("/:id", controller.delete);
+    router.get("/", asyncHandler(controller.getAll));
+    router.get("/:id",  asyncHandler(controller.getById));
+    router.post("/", asyncHandler(controller.create));
+    router.put("/:id", asyncHandler(controller.update));
+    router.patch("/:id", asyncHandler(controller.updateUniqueField));
+    router.delete("/:id", asyncHandler(controller.delete));
 
     return router;
 }`
@@ -97,6 +101,10 @@ export class ${className}Controller {
     }
 
     async update(req: Request, res: Response) {
+        
+    }
+
+    async updateUniqueField(req: Request, res: Response) {
         
     }
 
