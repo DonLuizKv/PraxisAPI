@@ -1,11 +1,12 @@
 import { Database } from "../../infra/database/Database";
 import { Repository } from "../../infra/database/Repository";
 import { TableNames } from "../../infra/database/Tables";
+import { User } from "../../infra/types/user";
 
 // como se ve en la database
 interface TokenEntity {
     id: number;
-    userID: number;
+    userID: User["id"];
     token: string;
     expires_at: Date;
 }
@@ -15,7 +16,7 @@ export class TokenRepository extends Repository<TokenEntity> {
         super(TableNames.Tokens, db);
     }
 
-    async CreateToken(token: string, userID: number, expires_at: Date): Promise<void> {
+    async SaveToken(token: string, userID: number, expires_at: Date): Promise<void> {
         await this.Create({ token, userID, expires_at });
     }
 

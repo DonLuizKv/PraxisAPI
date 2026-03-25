@@ -1,8 +1,7 @@
 import { randomBytes } from "node:crypto";
 import { Request, Response, NextFunction } from 'express';
 
-
-export const generateUID = (prefix: string, length = 6): string => {
+export const generateCode = (length = 6): string => {
     const CHARS: string = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     const bytes = randomBytes(length);
     let random: string = "";
@@ -11,7 +10,7 @@ export const generateUID = (prefix: string, length = 6): string => {
         random += CHARS[bytes[i] % CHARS.length];
     }
 
-    return `${prefix}-${random}`;
+    return random;
 }
 
 export const Time = {
