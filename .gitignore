@@ -10,3 +10,5 @@ node_modules/
 
 # ignorar compilacion
 dist/
+
+test.ts

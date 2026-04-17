@@ -2,6 +2,7 @@
   "name": "praxis_backend",
   "version": "1.0.0",
   "main": "index.ts",
+  "type": "commonjs",
   "scripts": {
     "dev": "nodemon ./src/index.ts",
     "cli": "ts-node ./cli/index.ts",

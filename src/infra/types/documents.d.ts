@@ -1,20 +1,25 @@
 export type Document = {
-    student_id:string;
-    name: string;
+    id: number;
+    student_id: number;
+    title: string;
     file_path: string;
-    data?: File;
+    public_id: string;
+    file_type: string;
+    file_size: number; //bytes
+    created_at: Date;
 }
 
 export type Arl = Document;
 export type CoverLetter = Document;
-export type Binnacle = Document;
-
 export type CV = Document;
+export type Binnacle = Document;
 
 export type Scenary = {
     id: number;
-    name: string;
+    company_name: string;
     address: string;
-    description: string;
-    location?: string;
+    city: string;
+    country: string;
+    mode: "remoto" | "presencial";
+    created_at: Date;
 }

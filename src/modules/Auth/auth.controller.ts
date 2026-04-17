@@ -8,7 +8,7 @@ export class AuthController {
         private service: AuthService
     ) { }
 
-    async Login(req: Request, res: Response): Promise<void> {
+    Login = async (req: Request, res: Response): Promise<void> => {
         const { email, password } = req.body;
         const { role, access, refresh } = await this.service.login(email, password);
 
@@ -23,7 +23,7 @@ export class AuthController {
         res.status(200).json({ access, role });
     }
 
-    async Register(req: Request, res: Response): Promise<void> {
+    Register = async (req: Request, res: Response): Promise<void> => {
         const { username, identification, email, password } = req.body;
 
         await this.service.register(username, identification, email, password);
@@ -31,7 +31,7 @@ export class AuthController {
         res.status(201).json("User registered successfully");
     }
 
-    async Verify(req: Request, res: Response): Promise<void> {
+    Verify = async (req: Request, res: Response): Promise<void> => {
         const accessToken = req.headers.authorization?.split(' ')[1] as string;
 
         if (!accessToken) throw Errors.UNAUTHORIZED("No access token");
@@ -40,7 +40,7 @@ export class AuthController {
         res.status(200).json(userData);
     }
 
-    async Refresh(req: Request, res: Response): Promise<void> {
+    Refresh = async (req: Request, res: Response): Promise<void> => {
         const refreshToken = req.cookies?.refresh_token;
 
         if (!refreshToken) throw Errors.UNAUTHORIZED("No session found");
@@ -49,7 +49,7 @@ export class AuthController {
         res.status(200).json(newAccessToken);
     }
 
-    async Logout(req: Request, res: Response): Promise<void> {
+    Logout = async (req: Request, res: Response): Promise<void> => {
         res.clearCookie("refresh_token", {
             secure: true,
             sameSite: "none",
@@ -59,19 +59,19 @@ export class AuthController {
         res.status(200).json("Session successfully closed");
     }
 
-    async Enable2FA(req: Request, res: Response): Promise<void> {
+    Enable2FA = async (req: Request, res: Response): Promise<void> => {
 
     }
 
-    async Disable2FA(req: Request, res: Response): Promise<void> {
+    Disable2FA = async (req: Request, res: Response): Promise<void> => {
 
     }
 
-    async Verify2FA(req: Request, res: Response): Promise<void> {
+    Verify2FA = async (req: Request, res: Response): Promise<void> => {
 
     }
 
-    async ForgotPassword(req: Request, res: Response): Promise<void> {
+    ForgotPassword = async (req: Request, res: Response): Promise<void> => {
         const { email } = req.body;
 
         await this.service.forgotPassword(email);
@@ -79,7 +79,7 @@ export class AuthController {
         res.status(200).json("If the email exists, a code was sent");
     }
 
-    async ResetPassword(req: Request, res: Response): Promise<void> {
+    ResetPassword = async (req: Request, res: Response): Promise<void> => {
         const { code, password } = req.body;
 
         await this.service.resetPassword(code, password);
@@ -87,7 +87,7 @@ export class AuthController {
         res.status(200).json("Password reset successfully");
     }
 
-    async ChangePassword(req: Request, res: Response): Promise<void> {
+    ChangePassword = async (req: Request, res: Response): Promise<void> => {
         const { oldPassword, newPassword } = req.body;
         const accessToken = req.headers.authorization?.split(' ')[1] as string;
 

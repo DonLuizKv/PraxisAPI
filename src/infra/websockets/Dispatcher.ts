@@ -50,7 +50,7 @@ export class Dispatcher {
     private UserEvents() {
         this.socket.on("user:login", (data: { message: string }) => {
             console.log(data);
-            this.socket.emit("user:login:success", data);
+            // this.socket.emit("user:login:success", data);
         });
     }
 

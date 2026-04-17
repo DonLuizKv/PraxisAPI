@@ -7,7 +7,7 @@ export const Env = {
     Global: {
         PORT: number("PORT", 4000),
         NODE_ENV: process.env.NODE_ENV ?? "dev",
-        ORIGINS: list("ORIGINS"),
+        ORIGINS: list("ALLOWED_ORIGINS"),
     },
 
     DB: {
